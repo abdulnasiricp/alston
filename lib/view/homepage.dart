@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                   ? AppColors.whiteColor
                   : AppColors.whiteColor,
               onPressed: () {
-                Get.to(() =>  MyBooking(apiToken: widget.apiToken,driverId: widget.driverId,));
+                Get.to(() =>  const MyBooking());
               },
             ),
           ],

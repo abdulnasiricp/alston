@@ -20,7 +20,6 @@ class ShiftScreen extends StatefulWidget {
 }
 
 class _ShiftScreenState extends State<ShiftScreen> {
- 
   @override
   Widget build(BuildContext context) {
     // Get the instance of ThemeController
@@ -37,7 +36,6 @@ class _ShiftScreenState extends State<ShiftScreen> {
           : AppColors.backgroundColor;
       final Color textColor =
           isDarkMode ? AppColors.textColorDarker : AppColors.textColor;
-     
 
       return DefaultTabController(
         length: 3,
@@ -132,22 +130,18 @@ class _ShiftScreenState extends State<ShiftScreen> {
               ),
             ],
           ),
-          body: TabBarView(
+          body: const TabBarView(
             children: <Widget>[
-              const TodayShift(),
-              const WeekShift(),
-              const MonthShift(),
-              
-           
+              TodayShift(),
+              WeekShift(),
+              MonthShift(),
             ],
           ),
         ),
       );
     });
   }
-
 }
-
 
 class TodayShift extends StatefulWidget {
   const TodayShift({super.key});
@@ -157,7 +151,7 @@ class TodayShift extends StatefulWidget {
 }
 
 class _TodayShiftState extends State<TodayShift> {
-   late int? driverId;
+  late int? driverId;
   late int? vehicleId;
   late String apiToken = '';
   LoadData() async {
@@ -173,21 +167,21 @@ class _TodayShiftState extends State<TodayShift> {
 
   getData() async {
     await LoadData();
-   await _myBookingState(apiToken, driverId, 'td');
+    await _myBookingState(apiToken, driverId, 'td');
   }
 
   @override
   void initState() {
     super.initState();
     getData();
-    
   }
 
   final ApiService apiService = Get.put(ApiService());
 
   MyBookingDetails? response;
 
-  Future<void> _myBookingState(String apiToken, int? driverId, String day) async {
+  Future<void> _myBookingState(
+      String apiToken, int? driverId, String day) async {
     response = await apiService.myBookingsDetails(apiToken, driverId, day);
     print('---------response $response');
     if (response != null && response?.success == 1) {
@@ -198,13 +192,10 @@ class _TodayShiftState extends State<TodayShift> {
         print(bookingDetail.bookingNumber);
       }
       setState(() {});
-    } else {
-   
-    }
+    } else {}
   }
 
-
- AcknowledgeBooking? acknowledgeResponse;
+  AcknowledgeBooking? acknowledgeResponse;
 
   void _acknowledgeMessage(
       String? apiToken, int? driverId, int? bookingId) async {
@@ -236,7 +227,6 @@ class _TodayShiftState extends State<TodayShift> {
       List<DataDetails> viewBookingDetials = viewBookingResponse!.data;
 
       for (final viewBookingDetials in viewBookingDetials) {
-       
         Get.defaultDialog(
             title: 'View Booking Details',
             content: Column(
@@ -259,9 +249,10 @@ class _TodayShiftState extends State<TodayShift> {
           snackPosition: SnackPosition.BOTTOM);
     }
   }
+
   @override
   Widget build(BuildContext context) {
-     if (response != null && response!.success == 1) {
+    if (response != null && response!.success == 1) {
       List<Datum> bookingDetails = response!.data;
 
       return ListView.builder(
@@ -388,9 +379,7 @@ class _TodayShiftState extends State<TodayShift> {
                                     textConfirm: 'Acknowlodge',
                                     textCancel: 'Cencel',
                                     onConfirm: () {
-                                      _acknowledgeMessage(
-                                        apiToken,
-                                          driverId,
+                                      _acknowledgeMessage(apiToken, driverId,
                                           bookingDetail.bookingId);
                                       Navigator.pop(context);
                                     },
@@ -415,10 +404,8 @@ class _TodayShiftState extends State<TodayShift> {
         child: CircularProgressIndicator(),
       );
     }
-    
   }
 }
-
 
 class WeekShift extends StatefulWidget {
   const WeekShift({super.key});
@@ -428,7 +415,7 @@ class WeekShift extends StatefulWidget {
 }
 
 class _WeekShiftState extends State<WeekShift> {
-   late int? driverId;
+  late int? driverId;
   late int? vehicleId;
   late String apiToken = '';
   LoadData() async {
@@ -444,7 +431,7 @@ class _WeekShiftState extends State<WeekShift> {
 
   getData() async {
     await LoadData();
-   await _myBookingState(apiToken, driverId, 'tw');
+    await _myBookingState(apiToken, driverId, 'tw');
   }
 
   @override
@@ -457,7 +444,8 @@ class _WeekShiftState extends State<WeekShift> {
 
   MyBookingDetails? response;
 
-  Future<void> _myBookingState(String apiToken, int? driverId, String day) async {
+  Future<void> _myBookingState(
+      String apiToken, int? driverId, String day) async {
     response = await apiService.myBookingsDetails(apiToken, driverId, day);
     print('---------response $response');
     if (response != null && response?.success == 1) {
@@ -468,13 +456,10 @@ class _WeekShiftState extends State<WeekShift> {
         print(bookingDetail.bookingNumber);
       }
       setState(() {});
-    } else {
-     
-     
-    }
+    } else {}
   }
 
-   AcknowledgeBooking? acknowledgeResponse;
+  AcknowledgeBooking? acknowledgeResponse;
 
   void _acknowledgeMessage(
       String? apiToken, int? driverId, int? bookingId) async {
@@ -506,7 +491,6 @@ class _WeekShiftState extends State<WeekShift> {
       List<DataDetails> viewBookingDetials = viewBookingResponse!.data;
 
       for (final viewBookingDetials in viewBookingDetials) {
-       
         Get.defaultDialog(
             title: 'View Booking Details',
             content: Column(
@@ -532,7 +516,7 @@ class _WeekShiftState extends State<WeekShift> {
 
   @override
   Widget build(BuildContext context) {
-     if (response != null && response!.success == 1) {
+    if (response != null && response!.success == 1) {
       List<Datum> bookingDetails = response!.data;
 
       return ListView.builder(
@@ -659,9 +643,7 @@ class _WeekShiftState extends State<WeekShift> {
                                     textConfirm: 'Acknowlodge',
                                     textCancel: 'Cencel',
                                     onConfirm: () {
-                                      _acknowledgeMessage(
-                                          apiToken,
-                                          driverId,
+                                      _acknowledgeMessage(apiToken, driverId,
                                           bookingDetail.bookingId);
                                       Navigator.pop(context);
                                     },
@@ -686,11 +668,8 @@ class _WeekShiftState extends State<WeekShift> {
         child: CircularProgressIndicator(),
       );
     }
-    
   }
 }
-
-
 
 class MonthShift extends StatefulWidget {
   const MonthShift({super.key});
@@ -700,7 +679,7 @@ class MonthShift extends StatefulWidget {
 }
 
 class _MonthShiftState extends State<MonthShift> {
-   late int? driverId;
+  late int? driverId;
   late int? vehicleId;
   late String apiToken = '';
   LoadData() async {
@@ -716,22 +695,21 @@ class _MonthShiftState extends State<MonthShift> {
 
   getData() async {
     await LoadData();
-    await _myBookingState(apiToken,driverId,"tm");
+    await _myBookingState(apiToken, driverId, "tm");
   }
 
   @override
   void initState() {
     super.initState();
     getData();
-        
-
   }
 
   final ApiService apiService = Get.put(ApiService());
 
   MyBookingDetails? response;
 
-  Future<void> _myBookingState(String apiToken, int? driverId, String day) async {
+  Future<void> _myBookingState(
+      String apiToken, int? driverId, String day) async {
     response = await apiService.myBookingsDetails(apiToken, driverId, day);
     print('---------response $response');
     if (response != null && response?.success == 1) {
@@ -742,14 +720,10 @@ class _MonthShiftState extends State<MonthShift> {
         print(bookingDetail.bookingNumber);
       }
       setState(() {});
-    } else {
-   
-    }
+    } else {}
   }
 
-
-
- AcknowledgeBooking? acknowledgeResponse;
+  AcknowledgeBooking? acknowledgeResponse;
 
   void _acknowledgeMessage(
       String? apiToken, int? driverId, int? bookingId) async {
@@ -781,7 +755,6 @@ class _MonthShiftState extends State<MonthShift> {
       List<DataDetails> viewBookingDetials = viewBookingResponse!.data;
 
       for (final viewBookingDetials in viewBookingDetials) {
-       
         Get.defaultDialog(
             title: 'View Booking Details',
             content: Column(
@@ -804,9 +777,10 @@ class _MonthShiftState extends State<MonthShift> {
           snackPosition: SnackPosition.BOTTOM);
     }
   }
+
   @override
   Widget build(BuildContext context) {
-     if (response != null && response!.success == 1) {
+    if (response != null && response!.success == 1) {
       List<Datum> bookingDetails = response!.data;
 
       return ListView.builder(
@@ -933,9 +907,7 @@ class _MonthShiftState extends State<MonthShift> {
                                     textConfirm: 'Acknowlodge',
                                     textCancel: 'Cencel',
                                     onConfirm: () {
-                                      _acknowledgeMessage(
-                                          apiToken,
-                                          driverId,
+                                      _acknowledgeMessage(apiToken, driverId,
                                           bookingDetail.bookingId);
                                       Navigator.pop(context);
                                     },
@@ -960,6 +932,5 @@ class _MonthShiftState extends State<MonthShift> {
         child: CircularProgressIndicator(),
       );
     }
-    
   }
 }

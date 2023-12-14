@@ -1,5 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
 import 'dart:convert';
+import 'package:alston/model/EndShift/endShiftQuestion_model.dart';
+import 'package:alston/model/EndShift/endShiftSubmitQuestion_model.dart';
+import 'package:alston/model/EndShift/endShiftstep1_model.dart';
 import 'package:alston/model/Prestart%20Activity/AskQuestion_model.dart';
 import 'package:alston/model/Prestart%20Activity/pre_start_checklist1.dart';
 import 'package:alston/model/Prestart%20Activity/pre_start_checklist2.dart';
@@ -58,6 +61,7 @@ class ApiService extends GetxService {
     await prefs.setString('apiToken', userData.apiToken);
     await prefs.setString('userName', userData.userName);
     await prefs.setInt('vehicleId', userData.vehicleId);
+    // await prefs.setInt('vehicleId', userData.vehicleId);
     // Save other user data as needed
   }
   Future<bool> isUserLoggedIn() async {
@@ -116,6 +120,24 @@ class ApiService extends GetxService {
     }
   }
 
+    Future<EndShiftQuestion?> endShiftVehicleAndQuestions(String apiToken) async {
+    var url = Uri.parse('$_baseUrl/eos');
+    try {
+      var response = await http.post(url, body: {'api_token': apiToken});
+
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return EndShiftQuestion.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
   Future<PrestartResponseSTEP1?> savePrestartStep1(
       int? vehicleId,
       int? driverId,
@@ -150,6 +172,39 @@ class ApiService extends GetxService {
   }
 
 
+  Future<EndShiftEosStep1?> saveESOStep1(
+      int? vehicleId,
+      int? driverId,
+      String apiToken,
+      String mileage,
+      String location,
+      double latitude,
+      double longitude) async {
+    var url = Uri.parse('$_baseUrl/save-eos');
+    try {
+      var response = await http.post(url, body: {
+        'vehicle_id': vehicleId.toString(),
+        'driver_id': driverId.toString(),
+        'api_token': apiToken,
+        'mileage': mileage.toString(),
+        'location': location,
+        'long': longitude.toString(),
+        'lat': latitude.toString(),
+      });
+
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return EndShiftEosStep1.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
    Future<SubmitQuestion?> savePrestartStep2(String? apiToken, int? prestartId, int? questionId, int? flag, String? note ) async {
     var url = Uri.parse('$_baseUrl/submit-prestart-question');
     try {
@@ -163,6 +218,30 @@ class ApiService extends GetxService {
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
         return SubmitQuestion.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
+
+ Future<EndShiftQuestionSubmit?> saveEndshiftStep2(String? apiToken, int? eosId, int? questionId, int? flag, String? note ) async {
+    var url = Uri.parse('$_baseUrl/submit-eos-question');
+    try {
+     var response = await http.post(url, body: {
+        'api_token': apiToken,
+        'eos_id': eosId.toString(),
+        'question_id': questionId.toString(),
+        'flag': flag.toString(),
+        'note': note,
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return EndShiftQuestionSubmit.fromJson(jsonResponse);
       } else {
         debugPrint('Error: ${response.statusCode}');
         return null;

@@ -1,5 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'package:alston/view/endShiftCheckList.dart';
 import 'package:alston/view/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -85,7 +86,7 @@ class EndShiftScreen extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 16.0), // Set your desired margin bottom
                     child: ElevatedButton(
                       onPressed: () {
-                        // Yes button action
+                        Get.to(()=>const EndShiftCheckList ());
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
@@ -104,7 +105,7 @@ class EndShiftScreen extends StatelessWidget {
 
                   TextButton(
                     onPressed: () {
-                      Get.to(const HomePage());
+                      Get.to(()=>const HomePage());
                     },
                     style: TextButton.styleFrom(
                       foregroundColor: themeController.isDarkMode.value
@@ -138,3 +139,5 @@ class EndShiftScreen extends StatelessWidget {
     );
   }
 }
+
+

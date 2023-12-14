@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/appcolors.dart';
 import '../utils/theme_controller.dart'; // Adjust this import based on your project structure
@@ -25,6 +26,13 @@ class ConfirmBusScreen extends StatefulWidget {
 
 class _ConfirmBusScreenState extends State<ConfirmBusScreen> {
   String? selectedBusNumber;
+
+   Future<void> _saveBusData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString("BusNumber","$selectedBusNumber");
+   
+  
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +128,7 @@ class _ConfirmBusScreenState extends State<ConfirmBusScreen> {
                       : AppColors.primaryColor,
                   textColor: AppColors.whiteColor,
                   onPressed: () {
+                    _saveBusData();
                     Get.offAll( HomePage(busNumber: selectedBusNumber,driverName: widget.driverName,apiToken: widget.apiToken,driverId: widget.driverId,));
                   },
                 ),

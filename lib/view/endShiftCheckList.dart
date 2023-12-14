@@ -1,15 +1,15 @@
-// ignore_for_file: depend_on_referenced_packages, unused_local_variable, unused_element, avoid_print, unnecessary_string_interpolations, non_constant_identifier_names
+// ignore_for_file: depend_on_referenced_packages, unused_local_variable, unused_element, avoid_print, unnecessary_string_interpolations, non_constant_identifier_names, file_names
 
 import 'dart:convert';
 
 import 'package:alston/api/api_service.dart';
-import 'package:alston/model/Prestart%20Activity/pre_start_checklist1.dart';
+import 'package:alston/model/EndShift/endShiftstep1_model.dart';
 import 'package:alston/utils/appcolors.dart';
 import 'package:alston/view/location_model.dart';
+import 'package:alston/widgets/endCheckList.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:alston/utils/theme_controller.dart';
-import 'package:alston/widgets/checklistscreen.dart';
 import 'package:alston/widgets/customelevatedbutton.dart';
 import 'package:alston/widgets/customtextformfield.dart';
 import 'package:alston/widgets/navigationdrawer.dart';
@@ -18,18 +18,18 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PreStartCheckList extends StatefulWidget {
+class EndShiftCheckList extends StatefulWidget {
   final String? busNumber;
   final String? driverName;
 
-  const PreStartCheckList({Key? key, this.busNumber, this.driverName})
+  const EndShiftCheckList({Key? key, this.busNumber, this.driverName})
       : super(key: key);
 
   @override
-  State<PreStartCheckList> createState() => _PreStartCheckListState();
+  State<EndShiftCheckList> createState() => _EndShiftCheckListState();
 }
 
-class _PreStartCheckListState extends State<PreStartCheckList> {
+class _EndShiftCheckListState extends State<EndShiftCheckList> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _locationName = TextEditingController();
@@ -39,11 +39,15 @@ class _PreStartCheckListState extends State<PreStartCheckList> {
   late int? driverId;
   late int? vehicleId;
   late String apiToken = '';
+  late String busNumber = '';
+  late String driverName = '';
   LoadData() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     driverId = sp.getInt('driverId');
     vehicleId = sp.getInt('vehicleId');
     apiToken = sp.getString('apiToken') ?? "";
+    busNumber = sp.getString('BusNumber') ?? "";
+    driverName = sp.getString('userName') ?? "";
     print(driverId);
     print(vehicleId);
     print(apiToken);
@@ -102,7 +106,7 @@ Future<void> fetchVehiclePosition() async {
 
   final ApiService apiService = Get.put(ApiService());
 
-  PrestartResponseSTEP1? response;
+  EndShiftEosStep1? response;
 
   void _myBookingState(
       int? vehicleId,
@@ -112,18 +116,18 @@ Future<void> fetchVehiclePosition() async {
       String location,
       double latitude,
       double longitude) async {
-    response = await apiService.savePrestartStep1(
+    response = await apiService.saveESOStep1(
         vehicleId, driverId, apiToken, mileage, location, latitude, longitude);
     print('---------response $response');
     if (response != null && response?.success == 1) {
-      PrestartData bookingDetails = response!.data;
+      Data bookingDetails = response!.data;
 
-      print('------------>> preStartId ${bookingDetails.prestartId}');
+      print('------------>> EosId ${bookingDetails.eosId}');
       setState(() {});
       // Navigate to the next screen
-      Get.to(() => CheckList(
+      Get.to(() => EndCheckList(
         apiToken: apiToken,
-        preStartId: bookingDetails.prestartId,
+        eosId: bookingDetails.eosId,
 
           ));
     } else {
@@ -133,12 +137,12 @@ Future<void> fetchVehiclePosition() async {
     }
   }
 
-  late PrestartData? bookingDetails = response!.data;
+  late Data? bookingDetails = response!.data;
 
   @override
   Widget build(BuildContext context) {
-    print('--------${widget.busNumber}');
-    print('--------${widget.driverName}');
+    print('--------$busNumber');
+    print('--------$driverName');
 
     // Accessing the ThemeController
     final ThemeController themeController = Get.find<ThemeController>();
@@ -209,7 +213,7 @@ Future<void> fetchVehiclePosition() async {
                       height: MediaQuery.of(context).size.height * 0.02 * 7),
                   CenterTextPair(
                     text: 'Driver Name : ',
-                    value: '${widget.driverName}',
+                    value: '$driverName',
                     textColor: themeController.isDarkMode.value
                         ? AppColors.whiteColor
                         : AppColors.textColor,
@@ -217,7 +221,7 @@ Future<void> fetchVehiclePosition() async {
                   SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   CenterTextPair(
                     text: 'Bus Number : ',
-                    value: '${widget.busNumber}',
+                    value: '$busNumber',
                     textColor: themeController.isDarkMode.value
                         ? AppColors.whiteColor
                         : AppColors.textColor,

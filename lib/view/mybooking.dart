@@ -5,6 +5,7 @@ import 'package:alston/model/my-Booking/acknowledge-booking_model.dart';
 import 'package:alston/model/my-Booking/my_booking_model.dart';
 import 'package:alston/model/my-Booking/viewBooking_model.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/theme_controller.dart';
 import '../utils/appcolors.dart';
 import 'package:get/get.dart';
@@ -12,21 +13,51 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/navigationdrawer.dart';
 
 class MyBooking extends StatefulWidget {
-  final String? apiToken;
-  final int? driverId;
+ 
 
-  const MyBooking({Key? key, this.apiToken, this.driverId}) : super(key: key);
+  const MyBooking({Key? key, }) : super(key: key);
 
   @override
   State<MyBooking> createState() => _MyBookingState();
 }
 
 class _MyBookingState extends State<MyBooking> {
+
+  late int? driverId;
+  late int? vehicleId;
+  late String apiToken = '';
+  LoadData() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    driverId = sp.getInt('driverId');
+    vehicleId = sp.getInt('vehicleId');
+    apiToken = sp.getString('apiToken') ?? "";
+    print(driverId);
+    print(vehicleId);
+    print(apiToken);
+    setState(() {});
+  }
+
+
+getData()async{
+  await  LoadData();
+  await  _myBookingState(
+      apiToken,
+      driverId,
+      'td');
+}
+
+   @override
+  void initState() {
+    super.initState();
+
+    getData();
+    
+  }
   final ApiService apiService = Get.put(ApiService());
 
   MyBookingDetails? response;
 
-  void _myBookingState(String apiToken, int? driverId, String day) async {
+  Future<void> _myBookingState(String apiToken, int? driverId, String day) async {
     response = await apiService.myBookingsDetails(apiToken, driverId, day);
     print('---------response $response');
     if (response != null && response?.success == 1) {
@@ -88,6 +119,14 @@ class _MyBookingState extends State<MyBooking> {
                 Text("${viewBookingDetials.dateTime}"),
                 Text("${viewBookingDetials.driverStatus}"),
                 Text("${viewBookingDetials.mobileNo}"),
+                Text("${viewBookingDetials.noteToDriver}"),
+                Text("${viewBookingDetials.pax}"),
+                Text("${viewBookingDetials.paxName}"),
+                Text("${viewBookingDetials.bookingNumber}"),
+                Text("${viewBookingDetials.personIncharge}"),
+                Text("${viewBookingDetials.pickupLocation}"),
+                Text("${viewBookingDetials.reason}"),
+                Text("${viewBookingDetials.tripStatus}"),
               ],
             ));
       }
@@ -100,20 +139,11 @@ class _MyBookingState extends State<MyBooking> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _myBookingState(
-      '${widget.apiToken}',
-      widget.driverId,
-      'tw',
-    );
-  }
+ 
 
   @override
   Widget build(BuildContext context) {
-    print('token booking--------${widget.apiToken}');
-    print('dId booking--------${widget.driverId}');
+  
 
     final ThemeController themeController = Get.find<ThemeController>();
     return Obx(() {
@@ -168,7 +198,7 @@ class _MyBookingState extends State<MyBooking> {
             padding: const EdgeInsets.only(left: 10.0, right: 10),
             child: InkWell(
               onTap: () {
-                viewBooking(widget.apiToken, bookingDetail.bookingId);
+                viewBooking(apiToken, bookingDetail.bookingId);
               },
               child: Card(
                 color: Colors.deepPurple[50],
@@ -285,8 +315,8 @@ class _MyBookingState extends State<MyBooking> {
                                     textCancel: 'Cencel',
                                     onConfirm: () {
                                       _acknowledgeMessage(
-                                          widget.apiToken,
-                                          widget.driverId,
+                                          apiToken,
+                                          driverId,
                                           bookingDetail.bookingId);
                                       Navigator.pop(context);
                                     },
