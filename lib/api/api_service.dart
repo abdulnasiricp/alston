@@ -7,6 +7,7 @@ import 'package:alston/model/Prestart%20Activity/question_model.dart';
 import 'package:alston/model/Prestart%20Activity/uploadphoto_model.dart';
 import 'package:alston/model/my-Booking/acknowledge-booking_model.dart';
 import 'package:alston/model/my-Booking/my_booking_model.dart';
+import 'package:alston/model/my-Booking/viewBooking_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
@@ -269,6 +270,27 @@ class ApiService extends GetxService {
       return null;
     }
   }
+
+   Future<ViewBooking?> viewBookingDetails(String? apiToken, int? bookingId ) async {
+    var url = Uri.parse('$_baseUrl/view-booking');
+    try {
+      var response = await http.post(url, body: {
+        'api_token': apiToken,
+        'booking_id': bookingId.toString(),
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return ViewBooking.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
 
 
 

@@ -1,7 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages, avoid_print, unnecessary_string_interpolations, unused_element, use_build_context_synchronously
 
 import 'dart:convert';
-import 'dart:io';
 import 'package:alston/model/Prestart%20Activity/AskQuestion_model.dart';
 import 'package:http/http.dart' as http;
 

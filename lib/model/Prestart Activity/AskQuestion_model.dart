@@ -2,6 +2,8 @@
 //
 //     final submitQuestion = submitQuestionFromJson(jsonString);
 
+// ignore_for_file: file_names
+
 import 'dart:convert';
 
 SubmitQuestion submitQuestionFromJson(String str) => SubmitQuestion.fromJson(json.decode(str));

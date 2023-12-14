@@ -3,6 +3,7 @@
 import 'package:alston/api/api_service.dart';
 import 'package:alston/model/my-Booking/acknowledge-booking_model.dart';
 import 'package:alston/model/my-Booking/my_booking_model.dart';
+import 'package:alston/model/my-Booking/viewBooking_model.dart';
 import 'package:flutter/material.dart';
 import '../utils/theme_controller.dart';
 import '../utils/appcolors.dart';
@@ -57,6 +58,40 @@ class _MyBookingState extends State<MyBooking> {
       print(bookingDetails?.message);
       Get.snackbar('', '${bookingDetails?.message}',
           snackPosition: SnackPosition.TOP);
+      setState(() {});
+    } else {
+      // Login failed, show an error message
+      Get.snackbar('Error', 'Api data fatch failed.',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  ViewBooking? viewBookingResponse;
+
+  void viewBooking(String? apiToken, int? bookingId) async {
+    viewBookingResponse =
+        await apiService.viewBookingDetails(apiToken, bookingId);
+    print('---------response $viewBookingResponse');
+    if (response != null && response?.success == 1) {
+      List<DataDetails> viewBookingDetials = viewBookingResponse!.data;
+
+      for (final viewBookingDetials in viewBookingDetials) {
+       
+        Get.defaultDialog(
+            title: 'View Booking Details',
+            content: Column(
+              children: [
+                Text("${viewBookingDetials.destination}"),
+                Text("${viewBookingDetials.bookingId}"),
+                Text("${viewBookingDetials.comments}"),
+                Text("${viewBookingDetials.customer}"),
+                Text("${viewBookingDetials.dateTime}"),
+                Text("${viewBookingDetials.driverStatus}"),
+                Text("${viewBookingDetials.mobileNo}"),
+              ],
+            ));
+      }
+
       setState(() {});
     } else {
       // Login failed, show an error message
@@ -131,129 +166,139 @@ class _MyBookingState extends State<MyBooking> {
           Datum bookingDetail = bookingDetails[index];
           return Padding(
             padding: const EdgeInsets.only(left: 10.0, right: 10),
-            child: Card(
-              color: Colors.deepPurple[50],
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(
-                        left: 5.0,
+            child: InkWell(
+              onTap: () {
+                viewBooking(widget.apiToken, bookingDetail.bookingId);
+              },
+              child: Card(
+                color: Colors.deepPurple[50],
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(
+                          left: 5.0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Vehicle:'),
+                            Text('Date/Time:'),
+                            Text('PickUp Location:'),
+                            Text('Pax:'),
+                            Text('Reason:'),
+                            Text('Destination:'),
+                            Text('Booking:'),
+                            Text('Status:'),
+                          ],
+                        ),
                       ),
-                      child: Column(
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 5.0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${bookingDetail.vehicleNumber}',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              '${bookingDetail.dateTime}',
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              '${bookingDetail.pickupLocation}',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              '${bookingDetail.pax}',
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              '${bookingDetail.reason}',
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              '${bookingDetail.destination}',
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              '${bookingDetail.bookingNumber}',
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              '${bookingDetail.tripStatus}',
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Vehicle:'),
-                          Text('Date/Time:'),
-                          Text('PickUp Location:'),
-                          Text('Pax:'),
-                          Text('Reason:'),
-                          Text('Destination:'),
-                          Text('Booking:'),
-                          Text('Status:'),
+                          IconButton(
+                              onPressed: () {
+                                Get.defaultDialog(
+                                    backgroundColor: Colors.deepPurple[50],
+                                    title: '',
+                                    content: const Text(
+                                      'Are you acknowlage the Driver',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    textConfirm: 'Acknowlodge',
+                                    textCancel: 'Cencel',
+                                    onConfirm: () {
+                                      _acknowledgeMessage(
+                                          widget.apiToken,
+                                          widget.driverId,
+                                          bookingDetail.bookingId);
+                                      Navigator.pop(context);
+                                    },
+                                    onCancel: () {
+                                      Navigator.pop(context);
+                                    });
+                              },
+                              icon: const Icon(Icons.settings))
                         ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 5.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${bookingDetail.vehicleNumber}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.dateTime}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.pickupLocation}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.pax}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.reason}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.destination}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.bookingNumber}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.tripStatus}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              Get.defaultDialog(
-                                backgroundColor: Colors.deepPurple[50],
-                                title: '',
-                                content: const Text('Are you acknowlage the Driver',style: TextStyle(color: Colors.white),),
-                                  textConfirm: 'Acknowlodge',
-                                  textCancel: 'Cencel',
-                                  onConfirm: () {
-                                    _acknowledgeMessage(
-                                        widget.apiToken,
-                                        widget.driverId,
-                                        bookingDetail.bookingId);
-                                    Navigator.pop(context);
-
-                                  },
-                                  onCancel: () {
-                                    Navigator.pop(context);
-                                  });
-                            },
-                            icon: const Icon(Icons.settings))
-                      ],
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

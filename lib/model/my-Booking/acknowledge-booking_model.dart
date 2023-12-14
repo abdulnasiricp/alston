@@ -2,6 +2,8 @@
 //
 //     final acknowledgeBooking = acknowledgeBookingFromJson(jsonString);
 
+// ignore_for_file: file_names
+
 import 'dart:convert';
 
 AcknowledgeBooking acknowledgeBookingFromJson(String str) => AcknowledgeBooking.fromJson(json.decode(str));
