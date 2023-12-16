@@ -20,3 +20,34 @@
 //           snackPosition: SnackPosition.BOTTOM);
 //     }
 //   }
+
+
+
+
+
+
+
+
+
+//  Get.to(()=>ViewBookingDetials());
+        // Get.defaultDialog(
+        //     title: 'View Booking Details',
+        //     content: Column(
+        //       children: [
+        //         Text("${viewBookingDetials.destination}"),
+        //         Text("${viewBookingDetials.bookingId}"),
+        //         Text("${viewBookingDetials.comments}"),
+        //         Text("${viewBookingDetials.customer}"),
+        //         Text("${viewBookingDetials.dateTime}"),
+        //         Text("${viewBookingDetials.driverStatus}"),
+        //         Text("${viewBookingDetials.mobileNo}"),
+        //         Text("${viewBookingDetials.noteToDriver}"),
+        //         Text("${viewBookingDetials.pax}"),
+        //         Text("${viewBookingDetials.paxName}"),
+        //         Text("${viewBookingDetials.bookingNumber}"),
+        //         Text("${viewBookingDetials.personIncharge}"),
+        //         Text("${viewBookingDetials.pickupLocation}"),
+        //         Text("${viewBookingDetials.reason}"),
+        //         Text("${viewBookingDetials.tripStatus}"),
+        //       ],
+        //     ));

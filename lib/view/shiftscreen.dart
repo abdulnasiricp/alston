@@ -1,8 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages, unused_local_variable, avoid_print, non_constant_identifier_names, unnecessary_string_interpolations
 import 'package:alston/api/api_service.dart';
-import 'package:alston/model/my-Booking/acknowledge-booking_model.dart';
-import 'package:alston/model/my-Booking/my_booking_model.dart';
-import 'package:alston/model/my-Booking/viewBooking_model.dart';
+import 'package:alston/model/my-Booking/completed_booking_model.dart';
 import 'package:alston/utils/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -178,14 +176,14 @@ class _TodayShiftState extends State<TodayShift> {
 
   final ApiService apiService = Get.put(ApiService());
 
-  MyBookingDetails? response;
+  ShiftDetails? response;
 
   Future<void> _myBookingState(
       String apiToken, int? driverId, String day) async {
-    response = await apiService.myBookingsDetails(apiToken, driverId, day);
+    response = await apiService.shiftCompletedDetails(apiToken, driverId, day);
     print('---------response $response');
     if (response != null && response?.success == 1) {
-      List<Datum> bookingDetails = response!.data;
+      List<CompletedData> bookingDetails = response!.data;
 
       for (final bookingDetail in bookingDetails) {
         print(bookingDetail.bookingId);
@@ -195,203 +193,127 @@ class _TodayShiftState extends State<TodayShift> {
     } else {}
   }
 
-  AcknowledgeBooking? acknowledgeResponse;
-
-  void _acknowledgeMessage(
-      String? apiToken, int? driverId, int? bookingId) async {
-    acknowledgeResponse =
-        await apiService.acknowledgeDetails(apiToken, driverId, bookingId);
-    print('---------response $acknowledgeResponse');
-    if (response != null) {
-      AcknowledgeBooking? bookingDetails = acknowledgeResponse;
-
-      // for (final bookingDetail in bookingDetails) {
-      print(bookingDetails?.message);
-      Get.snackbar('', '${bookingDetails?.message}',
-          snackPosition: SnackPosition.TOP);
-      setState(() {});
-    } else {
-      // Login failed, show an error message
-      Get.snackbar('Error', 'Api data fatch failed.',
-          snackPosition: SnackPosition.BOTTOM);
-    }
-  }
-
-  ViewBooking? viewBookingResponse;
-
-  void viewBooking(String? apiToken, int? bookingId) async {
-    viewBookingResponse =
-        await apiService.viewBookingDetails(apiToken, bookingId);
-    print('---------response $viewBookingResponse');
-    if (response != null && response?.success == 1) {
-      List<DataDetails> viewBookingDetials = viewBookingResponse!.data;
-
-      for (final viewBookingDetials in viewBookingDetials) {
-        Get.defaultDialog(
-            title: 'View Booking Details',
-            content: Column(
-              children: [
-                Text("${viewBookingDetials.destination}"),
-                Text("${viewBookingDetials.bookingId}"),
-                Text("${viewBookingDetials.comments}"),
-                Text("${viewBookingDetials.customer}"),
-                Text("${viewBookingDetials.dateTime}"),
-                Text("${viewBookingDetials.driverStatus}"),
-                Text("${viewBookingDetials.mobileNo}"),
-              ],
-            ));
-      }
-
-      setState(() {});
-    } else {
-      // Login failed, show an error message
-      Get.snackbar('Error', 'Api data fatch failed.',
-          snackPosition: SnackPosition.BOTTOM);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (response != null && response!.success == 1) {
-      List<Datum> bookingDetails = response!.data;
+      List<CompletedData> bookingDetails = response!.data;
 
-      return ListView.builder(
+      return bookingDetails.isEmpty ? const Center(child: Text('No data are availible'),): ListView.builder(
         itemCount: bookingDetails.length,
         itemBuilder: (context, index) {
-          Datum bookingDetail = bookingDetails[index];
+          CompletedData bookingDetail = bookingDetails[index];
           return Padding(
             padding: const EdgeInsets.only(left: 10.0, right: 10),
-            child: InkWell(
-              onTap: () {
-                viewBooking(apiToken, bookingDetail.bookingId);
-              },
-              child: Card(
-                color: Colors.deepPurple[50],
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(
-                          left: 5.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Vehicle:'),
-                            Text('Date/Time:'),
-                            Text('PickUp Location:'),
-                            Text('Pax:'),
-                            Text('Reason:'),
-                            Text('Destination:'),
-                            Text('Booking:'),
-                            Text('Status:'),
-                          ],
-                        ),
+            child: Card(
+              color: Colors.deepPurple[50],
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        left: 5.0,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 5.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${bookingDetail.vehicleNumber}',
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.dateTime}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.pickupLocation}',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.pax}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.reason}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.destination}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.bookingNumber}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.tripStatus}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IconButton(
-                              onPressed: () {
-                                Get.defaultDialog(
-                                    backgroundColor: Colors.deepPurple[50],
-                                    title: '',
-                                    content: const Text(
-                                      'Are you acknowlage the Driver',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    textConfirm: 'Acknowlodge',
-                                    textCancel: 'Cencel',
-                                    onConfirm: () {
-                                      _acknowledgeMessage(apiToken, driverId,
-                                          bookingDetail.bookingId);
-                                      Navigator.pop(context);
-                                    },
-                                    onCancel: () {
-                                      Navigator.pop(context);
-                                    });
-                              },
-                              icon: const Icon(Icons.settings))
+                          Text('Start Time:'),
+                          Text('Pax:'),
+                          Text('PickUp Location:'),
+                          Text('Date/Time:'),
+                          Text('hours:'),
+                          Text('Destination:'),
+                          Text('Customer:'),
+                          Text('End Time:'),
+                          Text('Vehicle #:'),
                         ],
-                      )
-                    ],
-                  ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 5.0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${bookingDetail.startTime}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.pax}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.pickupLocation}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.dateTime}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.hours}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.destination}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.customer}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.endTime}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.vehicleNumber}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -442,14 +364,14 @@ class _WeekShiftState extends State<WeekShift> {
 
   final ApiService apiService = Get.put(ApiService());
 
-  MyBookingDetails? response;
+  ShiftDetails? response;
 
   Future<void> _myBookingState(
       String apiToken, int? driverId, String day) async {
-    response = await apiService.myBookingsDetails(apiToken, driverId, day);
+    response = await apiService.shiftCompletedDetails(apiToken, driverId, day);
     print('---------response $response');
     if (response != null && response?.success == 1) {
-      List<Datum> bookingDetails = response!.data;
+      List<CompletedData> bookingDetails = response!.data;
 
       for (final bookingDetail in bookingDetails) {
         print(bookingDetail.bookingId);
@@ -459,203 +381,127 @@ class _WeekShiftState extends State<WeekShift> {
     } else {}
   }
 
-  AcknowledgeBooking? acknowledgeResponse;
-
-  void _acknowledgeMessage(
-      String? apiToken, int? driverId, int? bookingId) async {
-    acknowledgeResponse =
-        await apiService.acknowledgeDetails(apiToken, driverId, bookingId);
-    print('---------response $acknowledgeResponse');
-    if (response != null) {
-      AcknowledgeBooking? bookingDetails = acknowledgeResponse;
-
-      // for (final bookingDetail in bookingDetails) {
-      print(bookingDetails?.message);
-      Get.snackbar('', '${bookingDetails?.message}',
-          snackPosition: SnackPosition.TOP);
-      setState(() {});
-    } else {
-      // Login failed, show an error message
-      Get.snackbar('Error', 'Api data fatch failed.',
-          snackPosition: SnackPosition.BOTTOM);
-    }
-  }
-
-  ViewBooking? viewBookingResponse;
-
-  void viewBooking(String? apiToken, int? bookingId) async {
-    viewBookingResponse =
-        await apiService.viewBookingDetails(apiToken, bookingId);
-    print('---------response $viewBookingResponse');
-    if (response != null && response?.success == 1) {
-      List<DataDetails> viewBookingDetials = viewBookingResponse!.data;
-
-      for (final viewBookingDetials in viewBookingDetials) {
-        Get.defaultDialog(
-            title: 'View Booking Details',
-            content: Column(
-              children: [
-                Text("${viewBookingDetials.destination}"),
-                Text("${viewBookingDetials.bookingId}"),
-                Text("${viewBookingDetials.comments}"),
-                Text("${viewBookingDetials.customer}"),
-                Text("${viewBookingDetials.dateTime}"),
-                Text("${viewBookingDetials.driverStatus}"),
-                Text("${viewBookingDetials.mobileNo}"),
-              ],
-            ));
-      }
-
-      setState(() {});
-    } else {
-      // Login failed, show an error message
-      Get.snackbar('Error', 'Api data fatch failed.',
-          snackPosition: SnackPosition.BOTTOM);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (response != null && response!.success == 1) {
-      List<Datum> bookingDetails = response!.data;
+      List<CompletedData> bookingDetails = response!.data;
 
-      return ListView.builder(
+      return bookingDetails.isEmpty ? const Center(child: Text('No data are availible'),): ListView.builder(
         itemCount: bookingDetails.length,
         itemBuilder: (context, index) {
-          Datum bookingDetail = bookingDetails[index];
+          CompletedData bookingDetail = bookingDetails[index];
           return Padding(
             padding: const EdgeInsets.only(left: 10.0, right: 10),
-            child: InkWell(
-              onTap: () {
-                viewBooking(apiToken, bookingDetail.bookingId);
-              },
-              child: Card(
-                color: Colors.deepPurple[50],
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(
-                          left: 5.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Vehicle:'),
-                            Text('Date/Time:'),
-                            Text('PickUp Location:'),
-                            Text('Pax:'),
-                            Text('Reason:'),
-                            Text('Destination:'),
-                            Text('Booking:'),
-                            Text('Status:'),
-                          ],
-                        ),
+            child: Card(
+              color: Colors.deepPurple[50],
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        left: 5.0,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 5.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${bookingDetail.vehicleNumber}',
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.dateTime}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.pickupLocation}',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.pax}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.reason}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.destination}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.bookingNumber}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.tripStatus}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IconButton(
-                              onPressed: () {
-                                Get.defaultDialog(
-                                    backgroundColor: Colors.deepPurple[50],
-                                    title: '',
-                                    content: const Text(
-                                      'Are you acknowlage the Driver',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    textConfirm: 'Acknowlodge',
-                                    textCancel: 'Cencel',
-                                    onConfirm: () {
-                                      _acknowledgeMessage(apiToken, driverId,
-                                          bookingDetail.bookingId);
-                                      Navigator.pop(context);
-                                    },
-                                    onCancel: () {
-                                      Navigator.pop(context);
-                                    });
-                              },
-                              icon: const Icon(Icons.settings))
+                          Text('Start Time:'),
+                          Text('Pax:'),
+                          Text('PickUp Location:'),
+                          Text('Date/Time:'),
+                          Text('hours:'),
+                          Text('Destination:'),
+                          Text('Customer:'),
+                          Text('End Time:'),
+                          Text('Vehicle #:'),
                         ],
-                      )
-                    ],
-                  ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 5.0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${bookingDetail.startTime}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.pax}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.pickupLocation}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.dateTime}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.hours}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.destination}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.customer}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.endTime}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.vehicleNumber}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -706,14 +552,14 @@ class _MonthShiftState extends State<MonthShift> {
 
   final ApiService apiService = Get.put(ApiService());
 
-  MyBookingDetails? response;
+  ShiftDetails? response;
 
   Future<void> _myBookingState(
       String apiToken, int? driverId, String day) async {
-    response = await apiService.myBookingsDetails(apiToken, driverId, day);
+    response = await apiService.shiftCompletedDetails(apiToken, driverId, day);
     print('---------response $response');
     if (response != null && response?.success == 1) {
-      List<Datum> bookingDetails = response!.data;
+      List<CompletedData> bookingDetails = response!.data;
 
       for (final bookingDetail in bookingDetails) {
         print(bookingDetail.bookingId);
@@ -723,203 +569,127 @@ class _MonthShiftState extends State<MonthShift> {
     } else {}
   }
 
-  AcknowledgeBooking? acknowledgeResponse;
-
-  void _acknowledgeMessage(
-      String? apiToken, int? driverId, int? bookingId) async {
-    acknowledgeResponse =
-        await apiService.acknowledgeDetails(apiToken, driverId, bookingId);
-    print('---------response $acknowledgeResponse');
-    if (response != null) {
-      AcknowledgeBooking? bookingDetails = acknowledgeResponse;
-
-      // for (final bookingDetail in bookingDetails) {
-      print(bookingDetails?.message);
-      Get.snackbar('', '${bookingDetails?.message}',
-          snackPosition: SnackPosition.TOP);
-      setState(() {});
-    } else {
-      // Login failed, show an error message
-      Get.snackbar('Error', 'Api data fatch failed.',
-          snackPosition: SnackPosition.BOTTOM);
-    }
-  }
-
-  ViewBooking? viewBookingResponse;
-
-  void viewBooking(String? apiToken, int? bookingId) async {
-    viewBookingResponse =
-        await apiService.viewBookingDetails(apiToken, bookingId);
-    print('---------response $viewBookingResponse');
-    if (response != null && response?.success == 1) {
-      List<DataDetails> viewBookingDetials = viewBookingResponse!.data;
-
-      for (final viewBookingDetials in viewBookingDetials) {
-        Get.defaultDialog(
-            title: 'View Booking Details',
-            content: Column(
-              children: [
-                Text("${viewBookingDetials.destination}"),
-                Text("${viewBookingDetials.bookingId}"),
-                Text("${viewBookingDetials.comments}"),
-                Text("${viewBookingDetials.customer}"),
-                Text("${viewBookingDetials.dateTime}"),
-                Text("${viewBookingDetials.driverStatus}"),
-                Text("${viewBookingDetials.mobileNo}"),
-              ],
-            ));
-      }
-
-      setState(() {});
-    } else {
-      // Login failed, show an error message
-      Get.snackbar('Error', 'Api data fatch failed.',
-          snackPosition: SnackPosition.BOTTOM);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (response != null && response!.success == 1) {
-      List<Datum> bookingDetails = response!.data;
+      List<CompletedData> bookingDetails = response!.data;
 
-      return ListView.builder(
+      return bookingDetails.isEmpty ? const Center(child: Text('No data are availible'),): ListView.builder(
         itemCount: bookingDetails.length,
         itemBuilder: (context, index) {
-          Datum bookingDetail = bookingDetails[index];
+          CompletedData bookingDetail = bookingDetails[index];
           return Padding(
             padding: const EdgeInsets.only(left: 10.0, right: 10),
-            child: InkWell(
-              onTap: () {
-                viewBooking(apiToken, bookingDetail.bookingId);
-              },
-              child: Card(
-                color: Colors.deepPurple[50],
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(
-                          left: 5.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Vehicle:'),
-                            Text('Date/Time:'),
-                            Text('PickUp Location:'),
-                            Text('Pax:'),
-                            Text('Reason:'),
-                            Text('Destination:'),
-                            Text('Booking:'),
-                            Text('Status:'),
-                          ],
-                        ),
+            child: Card(
+              color: Colors.deepPurple[50],
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        left: 5.0,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 5.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${bookingDetail.vehicleNumber}',
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.dateTime}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.pickupLocation}',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.pax}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.reason}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.destination}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.bookingNumber}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              '${bookingDetail.tripStatus}',
-                              style: const TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IconButton(
-                              onPressed: () {
-                                Get.defaultDialog(
-                                    backgroundColor: Colors.deepPurple[50],
-                                    title: '',
-                                    content: const Text(
-                                      'Are you acknowlage the Driver',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    textConfirm: 'Acknowlodge',
-                                    textCancel: 'Cencel',
-                                    onConfirm: () {
-                                      _acknowledgeMessage(apiToken, driverId,
-                                          bookingDetail.bookingId);
-                                      Navigator.pop(context);
-                                    },
-                                    onCancel: () {
-                                      Navigator.pop(context);
-                                    });
-                              },
-                              icon: const Icon(Icons.settings))
+                          Text('Start Time:'),
+                          Text('Pax:'),
+                          Text('PickUp Location:'),
+                          Text('Date/Time:'),
+                          Text('hours:'),
+                          Text('Destination:'),
+                          Text('Customer:'),
+                          Text('End Time:'),
+                          Text('Vehicle #:'),
                         ],
-                      )
-                    ],
-                  ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 5.0,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${bookingDetail.startTime}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.pax}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.pickupLocation}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.dateTime}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.hours}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.destination}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.customer}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.endTime}',
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '${bookingDetail.vehicleNumber}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

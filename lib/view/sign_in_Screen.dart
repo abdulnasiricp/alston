@@ -48,7 +48,7 @@ class _SignInScreenState extends State<SignInScreen> {
     }
   }
 
-  void _attemptLogin(String email, String password) async {
+  void _attemptLogin(String? email, String? password) async {
     response = await apiService.login(email, password);
     print(response);
     if (response != null && response?.success == 1) {

@@ -262,7 +262,7 @@ class _EndCheckListState extends State<EndCheckList> {
                                                 }
                                                 Get.snackbar(
                                                   'Question #${questionList[index].questionId}',
-                                                  'you are Pass ',
+                                                  'Question Passed ',
                                                   colorText: Colors.white,
                                                   backgroundColor:
                                                       Colors.deepPurple,
@@ -290,7 +290,7 @@ class _EndCheckListState extends State<EndCheckList> {
                                                 }
                                                 Get.snackbar(
                                                   'Question #${questionList[index].questionId}',
-                                                  'you are Fail ',
+                                                  'Question Failed ',
                                                   colorText: Colors.white,
                                                   backgroundColor:
                                                       Colors.deepPurple,

@@ -176,7 +176,7 @@ Future<void> fetchVehiclePosition() async {
         ),
         appBar: AppBar(
           centerTitle: true,
-          title: Text('Pre-Start Checklist', style: GoogleFonts.lato()),
+          title: Text('EndShift Checklist', style: GoogleFonts.lato()),
           backgroundColor: themeController.isDarkMode.value
               ? AppColors.primaryColor
               : AppColors.backgroundColors,

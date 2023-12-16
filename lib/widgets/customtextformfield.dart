@@ -28,6 +28,7 @@ class CustomTextFormField extends StatelessWidget {
     return SizedBox(
       height: 60.0, // Set your desired height
       child: TextFormField(
+        
         cursorColor: AppColors.primaryColorDark,
         keyboardType: TextInputType.emailAddress,
         obscureText: obscureText,

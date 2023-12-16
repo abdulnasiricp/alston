@@ -1,15 +1,22 @@
-// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages, unused_local_variable, avoid_unnecessary_containers
+// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages, unused_local_variable, avoid_unnecessary_containers, non_constant_identifier_names, avoid_print, unnecessary_brace_in_string_interps, unnecessary_string_interpolations
 
 import 'dart:async';
+import 'dart:convert';
+import 'package:alston/api/api_service.dart';
+import 'package:alston/model/resumeWork_model.dart';
+import 'package:alston/model/take_a_rest_model.dart';
 import 'package:alston/view/homepage.dart';
+import 'package:alston/view/location_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/appcolors.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/theme_controller.dart';
 import '../widgets/customelevatedbutton.dart';
 import '../widgets/customtextformfield.dart';
 import '../widgets/navigationdrawer.dart';
+import 'package:http/http.dart' as http;
 
 class TakeARestScreen extends StatefulWidget {
   const TakeARestScreen({Key? key}) : super(key: key);
@@ -40,11 +47,19 @@ class _TakeARestScreenState extends State<TakeARestScreen> {
         _buttonText = 'Resume';
         _isRunning = false;
         _timer?.cancel();
+_driverResume(apiToken,response?.data.restId);
+ 
+
       });
     } else {
       setState(() {
         _buttonText = 'Stop Resting';
         _isRunning = true;
+       
+
+            _driverTakeRest(apiToken, driverId, vehicleId, "${_odometer.text}", "${_locationName}", lat, long);
+       
+
         _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
           setState(() {
             _elapsedSeconds++;
@@ -70,9 +85,108 @@ class _TakeARestScreenState extends State<TakeARestScreen> {
     Get.to(const HomePage());
   }
 
+  late int? driverId;
+  late int? vehicleId;
+  late String apiToken = '';
+  late String BusNumber = '';
+  LoadData() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    driverId = sp.getInt('driverId') ?? 1;
+    vehicleId = sp.getInt('vehicleId') ?? 1;
+    apiToken = sp.getString('apiToken') ?? "";
+    BusNumber = sp.getString('busNumber') ?? "";
+    print(driverId);
+    print(vehicleId);
+    print(apiToken);
+    setState(() {});
+    await fetchVehiclePosition();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    LoadData();
+  }
+
+  final ApiService apiService = Get.put(ApiService());
+
+  TakeRest? response;
+
+  Future<void> _driverTakeRest(apiToken, int? driverId, int? vehicleId,
+      odometer, location, lat, long) async {
+    response = await apiService.driverTakeRest(
+        apiToken, driverId, vehicleId, odometer, location, lat, long);
+    print('---------response $response');
+    if (response != null && response?.success == 1) {
+      print(response?.message);
+      print(response?.data.restId);
+      Get.snackbar('Notice', "${response?.message}",
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.deepPurple,
+          colorText: Colors.white);
+
+      setState(() {});
+    } else {}
+  }
+
+  ResumeWork? resumResponse;
+
+  Future<void> _driverResume(apiToken, restId) async {
+    resumResponse = await apiService.driverResumeWork(apiToken, restId);
+    print('---------response $resumResponse');
+    if (resumResponse != null && resumResponse?.success == 1) {
+      print(resumResponse?.message);
+      Get.snackbar('Notice', "${resumResponse?.message}",
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.deepPurple,
+          colorText: Colors.white);
+
+      setState(() {});
+    } else {}
+  }
+
+
+late String long;
+late String lat;
+late String stringValue = long;
+late double doubleValueLong = double.parse(stringValue);
+late String stringValuelat = lat;
+late double doubleValueLat = double.parse(stringValuelat);
+  
+Future<void> fetchVehiclePosition() async {
+  const apiUrl = "https://service.takip724.com/?type=rest&token=17713E4D-F452-47D8-9879-54F336ED8292&serviceType=VehicleLastPosition&plate=BS03%20BU";
+
+  // try {
+    final response = await http.post(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      // Parse the response JSON
+      final responseData = json.decode(response.body);
+      
+      // Map the JSON to your model
+      final vehiclePosition = LocationDetials.fromJson(responseData[0]);
+
+      // Now you can use the data as needed
+      print(vehiclePosition.longitude);
+      print(vehiclePosition.latitude);
+        // Update the state with the address
+        setState(() {
+          long = vehiclePosition.longitude;
+          lat = vehiclePosition.latitude;
+        });
+    } else {
+      // Handle errors
+      print("Failed to fetch data. Status code: ${response.statusCode}");
+    }
+  // } catch (error) {
+  //   // Handle exceptions
+  //   print("Error: $error");
+  // }
+}
+
   @override
   Widget build(BuildContext context) {
-    // MediaQuery for responsive layout
+    print(response?.data.restId);
     var mediaQuery = MediaQuery.of(context);
 
     return Scaffold(
@@ -124,7 +238,7 @@ class _TakeARestScreenState extends State<TakeARestScreen> {
                     height: mediaQuery.size.height * 0.1,
                   ),
                   Text(
-                    'You Are Operating Bus BS04HW',
+                    'You Are Operating Bus $BusNumber',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: mediaQuery.size.width * 0.05,
@@ -137,7 +251,7 @@ class _TakeARestScreenState extends State<TakeARestScreen> {
                   ),
                   SizedBox(height: mediaQuery.size.height * 0.05),
                   CustomTextFormField(
-                    labelText: 'Enter Odometer Reading, Km',
+                    labelText: 'Enter Odometer Reading, Km like 34',
                     obscureText: false,
                     controller: _odometer,
                     validator: (value) {
@@ -149,7 +263,7 @@ class _TakeARestScreenState extends State<TakeARestScreen> {
                   ),
                   SizedBox(height: mediaQuery.size.height * 0.02),
                   CustomTextFormField(
-                    labelText: 'Enter Resting Location',
+                    labelText: 'Enter Resting Location like sedney etc',
                     obscureText: false,
                     controller: _locationName,
                     validator: (value) {

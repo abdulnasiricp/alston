@@ -8,9 +8,16 @@ import 'package:alston/model/Prestart%20Activity/pre_start_checklist1.dart';
 import 'package:alston/model/Prestart%20Activity/pre_start_checklist2.dart';
 import 'package:alston/model/Prestart%20Activity/question_model.dart';
 import 'package:alston/model/Prestart%20Activity/uploadphoto_model.dart';
+import 'package:alston/model/dropofBooking.dart';
 import 'package:alston/model/my-Booking/acknowledge-booking_model.dart';
+import 'package:alston/model/my-Booking/completed_booking_model.dart';
 import 'package:alston/model/my-Booking/my_booking_model.dart';
 import 'package:alston/model/my-Booking/viewBooking_model.dart';
+import 'package:alston/model/onTheWayBooking_model.dart';
+import 'package:alston/model/pickupBooking_model.dart';
+import 'package:alston/model/resumeWork_model.dart';
+import 'package:alston/model/take_a_rest_model.dart';
+import 'package:alston/model/waitingBooking_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
@@ -28,7 +35,7 @@ class ApiService extends GetxService {
 
   final String _baseUrl = 'https://cloudfront.safelineworld.com/api';
 
-  Future<LoginResponse?> login(String email, String password) async {
+  Future<LoginResponse?> login(String? email, String? password) async {
     var url = Uri.parse('$_baseUrl/driver-login');
     try {
       var response = await http
@@ -61,8 +68,9 @@ class ApiService extends GetxService {
     await prefs.setString('apiToken', userData.apiToken);
     await prefs.setString('userName', userData.userName);
     await prefs.setInt('vehicleId', userData.vehicleId);
+    await prefs.setString('busNumber', userData.busNumber);
     // await prefs.setInt('vehicleId', userData.vehicleId);
-    // Save other user data as needed
+  
   }
   Future<bool> isUserLoggedIn() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -306,7 +314,7 @@ class ApiService extends GetxService {
   }
 
 
- Future<MyBookingDetails?> myBookingsDetails(String apiToken, int? driverId,String day ) async {
+ Future<MyBookingDetails?> myBookingsDetails(String? apiToken, int? driverId,String? day ) async {
     var url = Uri.parse('$_baseUrl/my-bookings');
     try {
       var response = await http.post(url, body: {
@@ -328,6 +336,27 @@ class ApiService extends GetxService {
     }
   }
 
+Future<ShiftDetails?> shiftCompletedDetails(String apiToken, int? driverId,String day ) async {
+    var url = Uri.parse('$_baseUrl/completed-bookings');
+    try {
+      var response = await http.post(url, body: {
+        'api_token': apiToken,
+        'driver_id': driverId.toString(),
+        'day': day,
+      });
+
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return ShiftDetails.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
 
  Future<AcknowledgeBooking?> acknowledgeDetails(String? apiToken, int? driverId,int? bookingId ) async {
     var url = Uri.parse('$_baseUrl/acknowledge-booking');
@@ -370,6 +399,150 @@ class ApiService extends GetxService {
     }
   }
 
+
+  Future<TakeRest?> driverTakeRest( apiToken, int? driverId,int? vehicleId, odometer, location,  lat,long  ) async {
+    var url = Uri.parse('$_baseUrl/start-rest');
+    try {
+      var response = await http.post(url, body: {
+        'api_token': apiToken,
+        'driver_id':driverId.toString(),
+        'vehicle_id':vehicleId.toString(),
+        'odometer':odometer,
+        'location':location,
+        'lat':lat,
+        'long':long,
+
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return TakeRest.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
+ Future<ResumeWork?> driverResumeWork( apiToken,int restId ) async {
+    var url = Uri.parse('$_baseUrl/end-rest');
+    try {
+      var response = await http.post(url, body: {
+        'api_token': apiToken,
+        'rest_id': restId.toString(),
+       
+
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return ResumeWork.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
+
+
+ Future<ONtheWayBooking?> onTheWay(String? apiToken,int? driverId ,int? bookingId) async {
+    var url = Uri.parse('$_baseUrl/on-the-way');
+    try {
+      var response = await http.post(url, body: {
+        'api_token': apiToken,
+        'driver_id': driverId.toString(),
+        'booking_id': bookingId.toString(),
+       
+
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return ONtheWayBooking.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
+
+ Future<WaitingBooking?> waitingBooking(String? apiToken,int? driverId ,int? bookingId) async {
+    var url = Uri.parse('$_baseUrl/waiting');
+    try {
+      var response = await http.post(url, body: {
+        'api_token': apiToken,
+        'driver_id': driverId.toString(),
+        'booking_id': bookingId.toString(),
+       
+
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return WaitingBooking.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
+   Future<PickUpBooking?> pickUpBooking(String? apiToken,int? driverId ,int? bookingId) async {
+    var url = Uri.parse('$_baseUrl/pickup');
+    try {
+      var response = await http.post(url, body: {
+        'api_token': apiToken,
+        'driver_id': driverId.toString(),
+        'booking_id': bookingId.toString(),
+       
+
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return PickUpBooking.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
+  Future<DropOfBooking?> dropOfBooking(String? note ,String? apiToken,int? driverId ,int? bookingId) async {
+    var url = Uri.parse('$_baseUrl/dropoff');
+    try {
+      var response = await http.post(url, body: {
+        'note': note,
+        'api_token': apiToken,
+        'driver_id': driverId.toString(),
+        'booking_id': bookingId.toString(),
+       
+
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return DropOfBooking.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
 
 
 
