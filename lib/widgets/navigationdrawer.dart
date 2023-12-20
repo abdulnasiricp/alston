@@ -2,6 +2,7 @@
 import 'package:alston/utils/appcolors.dart';
 import 'package:alston/view/mybooking.dart';
 import 'package:alston/view/notification.dart';
+import 'package:alston/view/prestartchecklist.dart';
 import 'package:alston/view/shiftscreen.dart';
 import 'package:alston/view/sign_in_Screen.dart';
 import 'package:flutter/material.dart';
@@ -66,8 +67,11 @@ Widget myDrawerList() {
         Icons.notifications_none_rounded,
         () => Get.to(()=>const ChatScreen()),
       ),
+        manuItem('Pre-Start', Icons.folder_copy,
+          () => Get.to(()=>const PreStartCheckList())),
       manuItem('Shifts', Icons.folder_copy_outlined,
           () => Get.to(()=>const ShiftScreen())),
+        
       manuItem('My Bookings', Icons.timer_outlined,
           () => Get.to(()=>const MyBooking())),
       const Divider(thickness: 1, height: 1),

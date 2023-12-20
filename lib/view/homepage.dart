@@ -25,17 +25,13 @@ class _HomePageState extends State<HomePage> {
   
   @override
   Widget build(BuildContext context) {
-    print('home--------${widget.busNumber}');
-    print('d home--------${widget.driverName}');
-    print('token home--------${widget.apiToken}');
-    print('dId home--------${widget.driverId}');
+  
     final ThemeController themeController = Get.find<ThemeController>();
     final screenSize = MediaQuery.of(context).size;
     final screenHeight = screenSize.height;
     final screenWidth = screenSize.width;
     final double sidePadding = screenWidth * 0.05;
     final double verticalSpacing = screenHeight * 0.02;
-    final double fontSize = screenHeight * 0.03;
 
     return Obx(() => Scaffold(
       drawer: Drawer(
@@ -75,7 +71,7 @@ class _HomePageState extends State<HomePage> {
         padding: EdgeInsets.symmetric(horizontal: sidePadding),
         color: themeController.isDarkMode.value
             ? AppColors.backgroundColorDarker
-            : AppColors.backgroundColor,
+            : AppColors.backgroundColorBlue,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -85,7 +81,8 @@ class _HomePageState extends State<HomePage> {
                 color: themeController.isDarkMode.value
                     ? AppColors.whiteColor
                     : AppColors.textColor,
-                fontSize: fontSize,
+                fontSize: 20,
+                fontWeight: FontWeight.bold
               ).merge(GoogleFonts.josefinSans()),
               textAlign: TextAlign.center,
             ),

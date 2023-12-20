@@ -1,17 +1,18 @@
-// ignore_for_file: depend_on_referenced_packages, unused_local_variable, unused_element, avoid_print, unnecessary_string_interpolations, non_constant_identifier_names, file_names
+// ignore_for_file: depend_on_referenced_packages, unused_local_variable, unused_element, avoid_print, unnecessary_string_interpolations, non_constant_identifier_names, file_names, unused_field, unnecessary_brace_in_string_interps
 
 import 'dart:convert';
 
 import 'package:alston/api/api_service.dart';
 import 'package:alston/model/EndShift/endShiftstep1_model.dart';
+import 'package:alston/model/EndShift/viewEosQuestion_model.dart';
 import 'package:alston/utils/appcolors.dart';
 import 'package:alston/view/location_model.dart';
+import 'package:alston/view/showEndShiftTaskScreen.dart';
 import 'package:alston/widgets/endCheckList.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:alston/utils/theme_controller.dart';
 import 'package:alston/widgets/customelevatedbutton.dart';
-import 'package:alston/widgets/customtextformfield.dart';
 import 'package:alston/widgets/navigationdrawer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -64,8 +65,10 @@ class _EndShiftCheckListState extends State<EndShiftCheckList> {
     
   }
 
-late String long;
-late String lat;
+late String long= '';
+late String lat= '';
+late String odometer= '';
+late String address= '';
 late String stringValue = long;
 late double doubleValueLong = double.parse(stringValue);
 late String stringValuelat = lat;
@@ -74,7 +77,7 @@ late double doubleValueLat = double.parse(stringValuelat);
 Future<void> fetchVehiclePosition() async {
   const apiUrl = "https://service.takip724.com/?type=rest&token=17713E4D-F452-47D8-9879-54F336ED8292&serviceType=VehicleLastPosition&plate=BS03%20BU";
 
-  // try {
+  try {
     final response = await http.post(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
@@ -87,19 +90,24 @@ Future<void> fetchVehiclePosition() async {
       // Now you can use the data as needed
       print(vehiclePosition.longitude);
       print(vehiclePosition.latitude);
+      print(vehiclePosition.odometer);
+      print(vehiclePosition.address);
+
         // Update the state with the address
         setState(() {
           long = vehiclePosition.longitude;
           lat = vehiclePosition.latitude;
+           odometer = vehiclePosition.odometer;
+          address = vehiclePosition.address;
         });
     } else {
       // Handle errors
       print("Failed to fetch data. Status code: ${response.statusCode}");
     }
-  // } catch (error) {
-  //   // Handle exceptions
-  //   print("Error: $error");
-  // }
+  } catch (error) {
+    // Handle exceptions
+    print("Error: $error");
+  }
 }
 
 
@@ -124,13 +132,18 @@ Future<void> fetchVehiclePosition() async {
 
       print('------------>> EosId ${bookingDetails.eosId}');
       setState(() {});
-      // Navigate to the next screen
-      Get.to(() => EndCheckList(
+  Get.to(() => EndCheckList(
         apiToken: apiToken,
         eosId: bookingDetails.eosId,
 
           ));
-    } else {
+     
+    } else if(response?.success == 0){
+       _viewQuestion(apiToken, bookingDetails?.eosId);
+
+    
+
+    }else {
       // Login failed, show an error message
       Get.snackbar('Error', 'Api data fatch failed.',
           snackPosition: SnackPosition.BOTTOM);
@@ -138,6 +151,29 @@ Future<void> fetchVehiclePosition() async {
   }
 
   late Data? bookingDetails = response!.data;
+
+
+    ViewEndShiftQuestion? viewresponse;
+
+  void _viewQuestion(
+      dynamic apiToken,dynamic eosId
+    ) async {
+    viewresponse = await apiService.viewEndShiftQuestion(apiToken,eosId
+        );
+    print('---------response $viewresponse');
+    if (viewresponse != null && viewresponse?.success == 1) {
+      EndData bookingDetails = viewresponse!.data;
+
+      print('------------>> preStartId ${bookingDetails.eosId}');
+      setState(() {});
+     
+      Get.to(()=>const ShowEndTask());
+    } else {
+      // Login failed, show an error message
+      Get.snackbar('Error', 'Api data fatch failed.',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -209,48 +245,69 @@ Future<void> fetchVehiclePosition() async {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
+                 SizedBox(
                       height: MediaQuery.of(context).size.height * 0.02 * 7),
                   CenterTextPair(
                     text: 'Driver Name : ',
-                    value: '$driverName',
+                    value: '${driverName}',
                     textColor: themeController.isDarkMode.value
                         ? AppColors.whiteColor
-                        : AppColors.textColor,
+                        : AppColors.primaryColor,
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   CenterTextPair(
                     text: 'Bus Number : ',
-                    value: '$busNumber',
+                    value: '${busNumber}',
                     textColor: themeController.isDarkMode.value
                         ? AppColors.whiteColor
-                        : AppColors.textColor,
+                        : AppColors.primaryColor,
                   ),
                   SizedBox(
                       height: MediaQuery.of(context).size.height * 0.02 * 2),
-                  CustomTextFormField(
-                    labelText: "Enter location name",
-                    obscureText: false,
-                    controller: _locationName,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Location cannot be empty";
-                      }
-                      return null;
-                    },
+                      
+                  Container(height: 60,width: double.infinity, 
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all()),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(child: Text('$address',style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black),)),
+                  ),
+
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                  CustomTextFormField(
-                    labelText: "Enter Mileage",
-                    obscureText: false,
-                    controller: _mileage,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Mileage cannot be empty";
-                      }
-                      return null;
-                    },
+
+                   Container(height: 60,width: double.infinity, 
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all()),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(child: Text('$odometer',style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black),)),
                   ),
+
+                  ),
+                  // CustomTextFormField(
+                  //   isRead: true,
+                  //   labelText: "$address",
+                  //   obscureText: false,
+                  //   controller: _locationName,
+                  //   validator: (value) {
+                  //     if (value!.isEmpty) {
+                  //       return "Location cannot be empty";
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
+                  // SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                  // CustomTextFormField(
+                  //   isRead: true,
+                  //   labelText: "$odometer",
+                  //   obscureText: false,
+                  //   controller: _mileage,
+                  //   validator: (value) {
+                  //     if (value!.isEmpty) {
+                  //       return "Mileage cannot be empty";
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
                   SizedBox(
                       height: MediaQuery.of(context).size.height * 0.02 * 2.5),
                   CustomElevatedButton(
@@ -262,16 +319,18 @@ Future<void> fetchVehiclePosition() async {
                         ? AppColors.whiteColor
                         : AppColors.whiteColor,
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
+                      // if (_formKey.currentState!.validate()) {
                         _myBookingState(
                             vehicleId,
                             driverId,
                             apiToken,
-                            '${_mileage.text}',
-                            '${_locationName.text}',
+                            // '${_mileage.text}',
+                            // '${_locationName.text}',
+                            odometer,
+                            address,
                             doubleValueLong,
                             doubleValueLat);
-                      }
+                      // }
                     },
                   ),
                 ],

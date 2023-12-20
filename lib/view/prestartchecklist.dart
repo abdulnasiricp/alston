@@ -1,17 +1,18 @@
-// ignore_for_file: depend_on_referenced_packages, unused_local_variable, unused_element, avoid_print, unnecessary_string_interpolations, non_constant_identifier_names
+// ignore_for_file: depend_on_referenced_packages, unused_local_variable, unused_element, avoid_print, unnecessary_string_interpolations, non_constant_identifier_names, unnecessary_brace_in_string_interps, unused_field
 
 import 'dart:convert';
 
 import 'package:alston/api/api_service.dart';
 import 'package:alston/model/Prestart%20Activity/pre_start_checklist1.dart';
+import 'package:alston/model/viewPreStartQuestion_model.dart';
 import 'package:alston/utils/appcolors.dart';
 import 'package:alston/view/location_model.dart';
+import 'package:alston/view/showCompleteTaskScreen.dart';
+import 'package:alston/widgets/checklistscreen.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:alston/utils/theme_controller.dart';
-import 'package:alston/widgets/checklistscreen.dart';
 import 'package:alston/widgets/customelevatedbutton.dart';
-import 'package:alston/widgets/customtextformfield.dart';
 import 'package:alston/widgets/navigationdrawer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -38,15 +39,17 @@ class _PreStartCheckListState extends State<PreStartCheckList> {
 
   late int? driverId;
   late int? vehicleId;
-  late String apiToken = '';
+  late String ApiToken = '';
+  late String driverName = '';
+  late String BusNumber = '';
   LoadData() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     driverId = sp.getInt('driverId');
     vehicleId = sp.getInt('vehicleId');
-    apiToken = sp.getString('apiToken') ?? "";
-    print(driverId);
-    print(vehicleId);
-    print(apiToken);
+    ApiToken = sp.getString('apiToken') ?? "";
+    driverName = sp.getString('userName') ?? "";
+    BusNumber = sp.getString('BusNumber') ?? "";
+   
     setState(() {});
 
    await fetchVehiclePosition();
@@ -60,8 +63,10 @@ class _PreStartCheckListState extends State<PreStartCheckList> {
     
   }
 
-late String long;
-late String lat;
+late String long= '';
+late String lat= '';
+late String odometer= '';
+late String address= '';
 late String stringValue = long;
 late double doubleValueLong = double.parse(stringValue);
 late String stringValuelat = lat;
@@ -70,7 +75,7 @@ late double doubleValueLat = double.parse(stringValuelat);
 Future<void> fetchVehiclePosition() async {
   const apiUrl = "https://service.takip724.com/?type=rest&token=17713E4D-F452-47D8-9879-54F336ED8292&serviceType=VehicleLastPosition&plate=BS03%20BU";
 
-  // try {
+  try {
     final response = await http.post(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
@@ -80,22 +85,21 @@ Future<void> fetchVehiclePosition() async {
       // Map the JSON to your model
       final vehiclePosition = LocationDetials.fromJson(responseData[0]);
 
-      // Now you can use the data as needed
-      print(vehiclePosition.longitude);
-      print(vehiclePosition.latitude);
-        // Update the state with the address
+    
         setState(() {
           long = vehiclePosition.longitude;
           lat = vehiclePosition.latitude;
+           odometer = vehiclePosition.odometer;
+          address = vehiclePosition.address;
         });
     } else {
       // Handle errors
       print("Failed to fetch data. Status code: ${response.statusCode}");
     }
-  // } catch (error) {
-  //   // Handle exceptions
-  //   print("Error: $error");
-  // }
+  } catch (error) {
+    // Handle exceptions
+    print("Error: $error");
+  }
 }
 
 
@@ -120,12 +124,19 @@ Future<void> fetchVehiclePosition() async {
 
       print('------------>> preStartId ${bookingDetails.prestartId}');
       setState(() {});
-      // Navigate to the next screen
-      Get.to(() => CheckList(
-        apiToken: apiToken,
-        preStartId: bookingDetails.prestartId,
 
-          ));
+      Get.to(()=> CheckList(apiToken: ApiToken, preStartId: bookingDetails.prestartId));
+
+
+
+    
+    }else if(( response?.success == 0)){
+   _viewQuestion(ApiToken, bookingDetails?.prestartId);
+
+
+
+
+
     } else {
       // Login failed, show an error message
       Get.snackbar('Error', 'Api data fatch failed.',
@@ -133,12 +144,37 @@ Future<void> fetchVehiclePosition() async {
     }
   }
 
-  late PrestartData? bookingDetails = response!.data;
+  late PrestartData? bookingDetails = response?.data;
+
+
+  
+  ViewPreStartQuestion? viewresponse;
+
+  void _viewQuestion(
+      dynamic apiToken,dynamic preStartId
+    ) async {
+    viewresponse = await apiService.viewPresStartQuestion(apiToken,preStartId
+        );
+    print('---------response $viewresponse');
+    if (viewresponse != null && viewresponse?.success == 1) {
+      ViewData bookingDetails = viewresponse!.data;
+
+      print('------------>> preStartId ${bookingDetails.prestartId}');
+      setState(() {});
+     
+      Get.to(()=>const ShowCompleteTask());
+    } else {
+      // Login failed, show an error message
+      Get.snackbar('Error', 'Api data fatch failed.',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  // late PrestartData? bookingDetails = response!.data;
 
   @override
   Widget build(BuildContext context) {
-    print('--------${widget.busNumber}');
-    print('--------${widget.driverName}');
+   
 
     // Accessing the ThemeController
     final ThemeController themeController = Get.find<ThemeController>();
@@ -198,7 +234,9 @@ Future<void> fetchVehiclePosition() async {
               horizontal: MediaQuery.of(context).size.width * 0.1),
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          color: backgroundColor,
+          color: themeController.isDarkMode.value
+            ? AppColors.backgroundColorDarker
+            : AppColors.backgroundColorBlue,
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -209,44 +247,65 @@ Future<void> fetchVehiclePosition() async {
                       height: MediaQuery.of(context).size.height * 0.02 * 7),
                   CenterTextPair(
                     text: 'Driver Name : ',
-                    value: '${widget.driverName}',
+                    value: '${driverName}',
                     textColor: themeController.isDarkMode.value
                         ? AppColors.whiteColor
-                        : AppColors.textColor,
+                        : AppColors.primaryColor,
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   CenterTextPair(
                     text: 'Bus Number : ',
-                    value: '${widget.busNumber}',
+                    value: '${BusNumber}',
                     textColor: themeController.isDarkMode.value
                         ? AppColors.whiteColor
-                        : AppColors.textColor,
+                        : AppColors.primaryColor,
                   ),
                   SizedBox(
                       height: MediaQuery.of(context).size.height * 0.02 * 2),
-                  CustomTextFormField(
-                    labelText: "Enter location name",
-                    obscureText: false,
-                    controller: _locationName,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Location cannot be empty";
-                      }
-                      return null;
-                    },
+                  // CustomTextFormField(
+                  //   isRead: true,
+                  //   labelText: "$address",
+                  //   obscureText: false,
+                  //   controller: _locationName,
+                  //   validator: (value) {
+                  //     if (value!.isEmpty) {
+                  //       return "Location cannot be empty";
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
+
+                  Container(height: 60,width: double.infinity, 
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all()),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(child: Text('$address',style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black),)),
+                  ),
+
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                  CustomTextFormField(
-                    labelText: "Enter Mileage",
-                    obscureText: false,
-                    controller: _mileage,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Mileage cannot be empty";
-                      }
-                      return null;
-                    },
+
+                   Container(height: 60,width: double.infinity, 
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all()),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(child: Text('$odometer',style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.black),)),
                   ),
+
+                  ),
+                  // CustomTextFormField(
+                  //   isRead: true,
+                    
+                  //   labelText: "$odometer",
+                  //   obscureText: false,
+                  //   controller: _mileage,
+                  //   validator: (value) {
+                  //     if (value!.isEmpty) {
+                  //       return "Mileage cannot be empty";
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
                   SizedBox(
                       height: MediaQuery.of(context).size.height * 0.02 * 2.5),
                   CustomElevatedButton(
@@ -258,16 +317,18 @@ Future<void> fetchVehiclePosition() async {
                         ? AppColors.whiteColor
                         : AppColors.whiteColor,
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
+                      // if (_formKey.currentState!.validate()) {
                         _myBookingState(
                             vehicleId,
                             driverId,
-                            apiToken,
-                            '${_mileage.text}',
-                            '${_locationName.text}',
+                            ApiToken,
+                            // '${_mileage.text}',
+                            // '${_locationName.text}',
+                             odometer,
+                            address,
                             doubleValueLong,
                             doubleValueLat);
-                      }
+                      // }
                     },
                   ),
                 ],
@@ -303,13 +364,15 @@ class CenterTextPair extends StatelessWidget {
           style: TextStyle(
             color: textColor,
             fontSize: MediaQuery.of(context).size.width * 0.045,
-            fontWeight: FontWeight.w100,
+            fontWeight: FontWeight.bold,
           ).merge(GoogleFonts.josefinSans()),
         ),
         Text(
           value,
           style: TextStyle(
             color: textColor,
+            fontWeight: FontWeight.bold,
+
             fontSize: MediaQuery.of(context).size.width * 0.045,
           ),
         ),

@@ -74,7 +74,7 @@ String ApiToken = response!.data.apiToken;
     
 
       // Pass the bus numbers to ConfirmBusScreen
-      Get.offAll(ConfirmBusScreen(busNumbers: combinedBusNumbers,driverName: driverName,apiToken: ApiToken,driverId:driverID ,));
+      Get.offAll(()=>ConfirmBusScreen(busNumbers: combinedBusNumbers,driverName: driverName,apiToken: ApiToken,driverId:driverID ,));
     } else {
       // Login failed, show an error message
       Get.snackbar('Error', 'Login failed. Please check your credentials.',
@@ -110,7 +110,9 @@ String ApiToken = response!.data.apiToken;
           padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
           height: screenHeight,
           width: screenWidth,
-          color: backgroundColor,
+          color:  themeController.isDarkMode.value
+            ? AppColors.backgroundColorDarker
+            : AppColors.backgroundColorBlue,
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -142,7 +144,8 @@ String ApiToken = response!.data.apiToken;
                   ),
                   SizedBox(height: verticalPadding),
                   CustomTextFormField(
-                    labelText: "Enter User-Id",
+                    isRead: false,
+                    labelText: 'Enter User-Id',
                     controller: _userId,
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -154,6 +157,7 @@ String ApiToken = response!.data.apiToken;
                   ),
                   SizedBox(height: verticalPadding),
                   CustomTextFormField(
+                    isRead: false,
                     labelText: "Enter Password",
                     controller: _password,
                     obscureText: true, // Hide password input

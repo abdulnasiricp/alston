@@ -1,7 +1,9 @@
-// ignore_for_file: depend_on_referenced_packages, avoid_print, unnecessary_string_interpolations, unused_element, use_build_context_synchronously
+// ignore_for_file: depend_on_referenced_packages, avoid_print, unnecessary_string_interpolations, unused_element, use_build_context_synchronously, non_constant_identifier_names, unused_local_variable
 
 import 'dart:convert';
+import 'package:alston/model/ConfirmPassword_model.dart';
 import 'package:alston/model/Prestart%20Activity/AskQuestion_model.dart';
+import 'package:alston/view/mybooking.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:alston/api/api_service.dart';
@@ -16,6 +18,7 @@ import 'package:alston/utils/theme_controller.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckList extends StatefulWidget {
   final String apiToken;
@@ -29,6 +32,22 @@ class CheckList extends StatefulWidget {
 
 class _CheckListState extends State<CheckList> {
   final ApiService apiService = Get.put(ApiService());
+
+  late int? driverId;
+  late int? vehicleId;
+  late String apiToken = '';
+  LoadData() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    driverId = sp.getInt('driverId');
+    vehicleId = sp.getInt('vehicleId');
+    apiToken = sp.getString('apiToken') ?? "";
+
+    setState(() {});
+  }
+
+  getData() async {
+    await LoadData();
+  }
 
   QuestionDetails? response;
   List<Question> questionList = [];
@@ -48,6 +67,7 @@ class _CheckListState extends State<CheckList> {
   }
 
   TextEditingController questionController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   bool isCorrectSelected = false;
   bool isWrongSelected = false;
@@ -66,10 +86,33 @@ class _CheckListState extends State<CheckList> {
       SubmitQuestion? bookingDetails = submitResponse;
 
       print(bookingDetails?.message);
-      Get.snackbar('', '${bookingDetails?.message}',
+      Get.snackbar('Notice', '${bookingDetails?.message}',
           backgroundColor: Colors.deepPurple,
           colorText: Colors.white,
           snackPosition: SnackPosition.TOP);
+      setState(() {});
+    } else {
+      // Login failed, show an error message
+      Get.snackbar('Error', 'Api data fetch failed.',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  ConfirmPassword? passwordResponse;
+
+  void _passwordCheck(String? apiToken, int? driverId, String? password) async {
+    passwordResponse =
+        await apiService.checkPassword(apiToken, driverId, password);
+    print('---------response $passwordResponse');
+    if (passwordResponse != null) {
+      print('----------$passwordResponse');
+      ConfirmPassword? bookingDetails = passwordResponse;
+
+      print(bookingDetails?.message);
+      // Get.snackbar('Notice', '${bookingDetails?.message}',
+      //     backgroundColor: Colors.deepPurple,
+      //     colorText: Colors.white,
+      //     snackPosition: SnackPosition.TOP);
       setState(() {});
     } else {
       // Login failed, show an error message
@@ -93,7 +136,6 @@ class _CheckListState extends State<CheckList> {
         })
         ..files.add(await http.MultipartFile.fromPath(
           'photo',
-          
           photoFile.path,
           contentType: MediaType('image', 'jpeg'),
         ));
@@ -129,6 +171,7 @@ class _CheckListState extends State<CheckList> {
   void initState() {
     super.initState();
     print('------->------>${widget.apiToken}');
+    getData();
     _questionList('${widget.apiToken}').then((_) {
       // Initialize selectedOptions list with false
       selectedOptions = List.generate(questionList.length, (index) => null);
@@ -145,7 +188,7 @@ class _CheckListState extends State<CheckList> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     // Adjust icon size and spacing based on screen size
-    double iconSize = screenWidth * 0.075; // e.g., 7.5% of screen width
+    double iconSize = screenWidth * 0.100; // e.g., 7.5% of screen width
     double spaceBetween = screenHeight * 0.02; //
     final ThemeController themeController = Get.find<ThemeController>();
 
@@ -161,10 +204,10 @@ class _CheckListState extends State<CheckList> {
               icon: Icon(
                 themeController.isDarkMode.value
                     ? Icons.light_mode // Icon for light mode
-                    : Icons.dark_mode, // Icon for dark mode
+                    : Icons.dark_mode,
                 color: themeController.isDarkMode.value
                     ? AppColors.darkModeIcon
-                    : AppColors.primaryColor, // Icon color in light mode
+                    : AppColors.primaryColor,
               ),
               onPressed: () {
                 // Toggle the theme
@@ -176,27 +219,40 @@ class _CheckListState extends State<CheckList> {
         body: Column(
           children: [
             Expanded(
-              child: isAllQuestionsDone
-                  ? Center(
-                      child: Text(
-                        'All questions for today are done!',
-                        style: TextStyle(
-                          color: Colors.green, // Change color as needed
-                          fontSize: screenWidth * 0.06,
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
+              // child: isAllQuestionsDone
+              //     ? Center(
+              //         child: Row(
+              //           children: [
+              //             Text(
+              //               'Pre-Start Checklist Completed Today',
+              //               style: TextStyle(
+              //                 color: Colors.green, // Change color as needed
+              //                 fontSize: screenWidth * 0.06,
+              //               ),
+              //             ),
+              //             const Card(
+              //                 color: Colors.green,
+              //                 child: Icon(
+              //                   Icons.check,
+              //                   color: Colors.white,
+              //                   size: 25,
+              //                 ))
+              //           ],
+              //         ),
+              //       )
+              //     : 
+              child: ListView.builder(
                       scrollDirection: Axis.vertical,
                       itemCount: questionList.length,
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.all(15.0),
+                          padding: const EdgeInsets.only(
+                              left: 10.0, right: 10, top: 10),
                           child: SizedBox(
-                            width: screenWidth * 0.8,
-                            height: screenHeight * 0.5,
+                            // width: screenWidth * 0.8,
                             child: Card(
-                              elevation: 1,
+                              // elevation: 4,
+                              shadowColor: Colors.black,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15.0),
                               ),
@@ -205,7 +261,7 @@ class _CheckListState extends State<CheckList> {
                                   : AppColors.backgroundColors,
                               child: Padding(
                                 padding: EdgeInsets.only(
-                                  top: screenWidth * 0.1,
+                                  top: screenWidth * 0.01,
                                   left: screenWidth * 0.03,
                                   right: screenWidth * 0.02,
                                 ),
@@ -218,8 +274,9 @@ class _CheckListState extends State<CheckList> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${questionList[index].questionId}#.',
+                                          '# ${questionList[index].questionId} : ',
                                           style: TextStyle(
+                                            fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                             fontSize: screenWidth * 0.05,
                                           ).merge(GoogleFonts.josefinSans()),
@@ -235,101 +292,91 @@ class _CheckListState extends State<CheckList> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: screenHeight * 0.04),
-                                    Text("Please Submit the  Following:",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: screenWidth * 0.04,
-                                        )),
-                                    SizedBox(height: screenHeight * 0.04),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              _buildIcon(
-                                                Icons.check,
-                                                selectedOptions[index] == true,
-                                                Colors.green,
-                                                () {
-                                                  setState(() {
-                                                    if (selectedOptions[index] ==
-                                                        true) {
-                                                      selectedOptions[index] =
-                                                          null; // Change to white
-                                                    } else {
-                                                      selectedOptions[index] =
-                                                          true; // Change to green
-                                                    }
-                                                    Get.snackbar(
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            _buildIcon(
+                                              Icons.check,
+                                              selectedOptions[index] == true,
+                                              Colors.greenAccent[700]!,
+                                              () {
+                                                setState(() {
+                                                  if (selectedOptions[index] ==
+                                                      true) {
+                                                    selectedOptions[index] =
+                                                        null; // Change to white
+                                                  } else {
+                                                    selectedOptions[index] =
+                                                        true; // Change to green
+                                                  }
+                                                  Get.snackbar(
                                                       'Question #${questionList[index].questionId}',
-                                                      'you are Pass ',
+                                                      'Question Pass ',
                                                       colorText: Colors.white,
                                                       backgroundColor:
                                                           Colors.deepPurple,
-                                                    );
-                                                  });
-                                                },
-                                                iconSize,
-                                                "Yes",
-                                                index,
-                                              ),
-                                              SizedBox(width: spaceBetween),
-                                          _buildIcon(
-                                            Icons.close,
-                                            selectedOptions[index] == false,
-                                            Colors.red,
-                                            () {
-                                              setState(() {
-                                                if (selectedOptions[index] ==
-                                                    false) {
-                                                  selectedOptions[index] =
-                                                      null; // Change to white
-                                                } else {
-                                                  selectedOptions[index] =
-                                                      false; // Change to red
-                                                }
-                                                Get.snackbar(
-                                                  'Question #${questionList[index].questionId}',
-                                                  'you are Fail ',
-                                                  colorText: Colors.white,
-                                                  backgroundColor:
-                                                      Colors.deepPurple,
-                                                );
-                                              });
-                                            },
-                                            iconSize,
-                                            "No",
-                                            index,
-                                          ),
-                                            ],
-                                          ),
-                                          
-                                          SizedBox(width: spaceBetween),
-                                          _buildIcon(
-                                              Icons.image,
-                                              false,
-                                              Colors.white,
-                                              _showImageSourceDialog,
-                                              iconSize,
-                                              "Upload a Image",
-                                              index),
-                                          SizedBox(width: spaceBetween),
-                                          _buildIcon(
-                                              Icons.edit_note,
-                                              false,
-                                              Colors.white,
-                                              () => _showInputDialog(
-                                                  questionList[index]
-                                                      .questionId),
-                                              iconSize,
-                                              "Ask a Question",
-                                              index),
-                                        ],
-                                      ),
+                                                      duration: const Duration(
+                                                          milliseconds: 800));
+                                                });
+                                              },
+                                              35,
+                                              // "Yes",
+                                              index,
+                                            ),
+                                            _buildIcon(
+                                              Icons.close,
+                                              selectedOptions[index] == false,
+                                              Colors.red,
+                                              () {
+                                                setState(() {
+                                                  if (selectedOptions[index] ==
+                                                      false) {
+                                                    selectedOptions[index] =
+                                                        null; // Change to white
+                                                  } else {
+                                                    selectedOptions[index] =
+                                                        false; // Change to red
+                                                  }
+                                                  Get.snackbar(
+                                                      'Question #${questionList[index].questionId}',
+                                                      'Question Fail ',
+                                                      colorText: Colors.white,
+                                                      backgroundColor:
+                                                          Colors.deepPurple,
+                                                      duration: const Duration(
+                                                          milliseconds: 800));
+                                                });
+                                              },
+                                              35,
+                                              // "No",
+                                              index,
+                                            ),
+                                            _buildIcon(
+                                                Icons.camera,
+                                                false,
+                                                Colors.white,
+                                                _showImageSourceDialog,
+                                                35,
+                                                // "Upload a Image",
+                                                index),
+                                            _buildIcon(
+                                                Icons.edit,
+                                                false,
+                                                Colors.white,
+                                                () => _showInputDialog(
+                                                    questionList[index]
+                                                        .questionId),
+                                                35,
+                                                // "Ask a Question",
+                                                index),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -340,89 +387,66 @@ class _CheckListState extends State<CheckList> {
                       },
                     ),
             ),
-              if (!isAllQuestionsDone)
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-              // child: CustomElevatedButton(
-              //   buttonText: 'Submit Checklist',
-              //   buttonColor: themeController.isDarkMode.value
-              //       ? AppColors.primaryColorDarker
-              //       : AppColors.primaryColor,
-              //   textColor: AppColors.whiteColor,
-              //   onPressed: () {
-              //     bool isAllQuestions() {
-              //       return selectedOptions.every(
-              //               (option) => option != null && option == true) &&
-              //           !selectedOptions
-              //               .any((option) => option != null && option == false);
-              //     }
+            if (!isAllQuestionsDone)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10.0, horizontal: 16.0),
+                child: CustomElevatedButton(
+                  buttonText: 'Submit Checklist',
+                  buttonColor: themeController.isDarkMode.value
+                      ? AppColors.primaryColorDarker
+                      : AppColors.primaryColor,
+                  textColor: AppColors.whiteColor,
+                 onPressed: () {
+                    Get.defaultDialog(
+                      title: 'Confirm Password',
+                      titleStyle: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
+                      contentPadding: const EdgeInsets.only(top: 30,bottom: 30),
+                      content: Column(
+                        children: [
+                          TextField(
+                            controller: passwordController,
+                          ),
+                          const SizedBox(height: 20,),
+                          TextButton(
+                              onPressed: () {
+                                passwordController.clear();
+                                Navigator.pop(context);
+                                _passwordCheck(apiToken, driverId,
+                                    '${passwordController.text}');
+                                bool areAllQuestionsAnswered = selectedOptions
+                                    .every((option) => option != null);
 
-              //     if (isAllQuestions()) {
-              //       setState(() {
-              //         isAllQuestionsDone = true;
-              //       });
+                                setState(() {
+                                  isAllQuestionsDone = areAllQuestionsAnswered;
+                                  if (isAllQuestionsDone) {
+                                    Get.to(() => const MyBooking());
+                                  }
+                                });
 
-              //       Get.snackbar(
-              //         'Notice',
-              //         'All questions for today are done!',
-              //         colorText: Colors.white,
-              //         backgroundColor: Colors.deepPurple,
-              //         snackPosition: SnackPosition.BOTTOM,
-              //       );
-              //     } else {
-              //       Get.snackbar(
-              //         'Notice',
-              //         'Please answer all questions!',
-              //         colorText: Colors.white,
-              //         backgroundColor: Colors.deepPurple,
-              //         snackPosition: SnackPosition.BOTTOM,
-              //       );
-              //     }
-              //   },
-              // ),
-
-             child: CustomElevatedButton(
-  buttonText: 'Submit Checklist',
-  buttonColor: themeController.isDarkMode.value
-      ? AppColors.primaryColorDarker
-      : AppColors.primaryColor,
-  textColor: AppColors.whiteColor,
-  onPressed: () {
-    // Check if at least one question is answered
-    bool isAnyQuestionAnswered = selectedOptions.any((option) => option != null);
-
-    if (isAnyQuestionAnswered) {
-      setState(() {
-        isAllQuestionsDone = true;
-      });
-
-      Get.snackbar(
-        'Notice',
-        'All questions for today are done!',
-        colorText: Colors.white,
-        backgroundColor: Colors.deepPurple,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } else {
-      Get.snackbar(
-        'Notice',
-        'Please answer at least one question!',
-        colorText: Colors.white,
-        backgroundColor: Colors.deepPurple,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
-  },
-),
-
-            ),
+                                Get.snackbar(
+                                  'Notice',
+                                  areAllQuestionsAnswered
+                                      ? 'All questions for today are done!'
+                                      : 'Please answer all question!!',
+                                  colorText: Colors.white,
+                                  backgroundColor: Colors.deepPurple,
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              },
+                              child: const Text('Confirm',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),)),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
           ],
         )));
   }
 
   Widget _buildIcon(IconData icon, bool? isSelected, Color color,
-      VoidCallback onTap, double size, String text, int index) {
+      VoidCallback onTap, double size, int index) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return GestureDetector(
@@ -431,15 +455,21 @@ class _CheckListState extends State<CheckList> {
         children: [
           Row(
             children: <Widget>[
-              Icon(icon,
-                  color: isSelected == true ? color : Colors.white, size: size),
-              SizedBox(
-                width: screenWidth * 0.05,
-              ), // Space between icon and text
-              Text(text,
-                  style: TextStyle(
+              Card(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(10),
+                    // border: Border.all()
+                  ),
+                  width: 40,
+                  height: 40,
+                  margin: const EdgeInsets.all(1),
+                  child: Icon(icon,
                       color: isSelected == true ? color : Colors.white,
-                      fontSize: screenWidth * 0.04)),
+                      size: size),
+                ),
+              ),
             ],
           ),
           SizedBox(
@@ -502,32 +532,41 @@ class _CheckListState extends State<CheckList> {
     }
   }
 
+  
   void _showInputDialog(int questionId) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Ask a Question"),
-          content: TextField(
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Center(child: Text("Note", style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold))),
+        content: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Adjust padding here
+          child: TextField(
             controller: questionController,
-            decoration:
-                const InputDecoration(hintText: "Type your question here"),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                _submitChecklist("${widget.apiToken}", widget.preStartId,
-                    questionId, 0, questionController.text);
-                Navigator.pop(context);
-                setState(() {
-                  questionController.clear();
-                });
-              },
-              child: const Text("Submit"),
+            decoration: const InputDecoration(
+              hintText: "Type your question here",
+              hintStyle: TextStyle(fontSize: 20),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+        contentPadding: const EdgeInsets.only(top: 30,bottom: 30),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _submitChecklist("${widget.apiToken}", widget.preStartId, questionId, 0, questionController.text);
+              Navigator.pop(context);
+              setState(() {
+                questionController.clear();
+              });
+            },
+            child: const Center(child: Text("Submit", style: TextStyle(fontSize: 18))),
+          ),
+        ],
+      );
+    },
+  
+
+
     );
   }
 }

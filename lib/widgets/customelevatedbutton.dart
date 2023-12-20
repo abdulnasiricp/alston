@@ -28,14 +28,18 @@ class CustomElevatedButton extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       child: Container(
         decoration: BoxDecoration(
-          gradient: themeController.isDarkMode.value
-              ? AppColors.buttonBackgroundLight
-              : AppColors.buttonBackgroundDark,
+
+          color: themeController.isDarkMode.value
+              ? AppColors.primaryColor
+              : AppColors.primaryColor,
           borderRadius: BorderRadius.circular(50),
+          border: Border.all(color: Colors.black)
+          
         ),
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
+             
             primary: Colors.transparent, // Make the button transparent
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(50),

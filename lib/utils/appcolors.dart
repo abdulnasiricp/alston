@@ -1,5 +1,5 @@
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class AppColors {
   static const Color primaryColor = Color(0xE032607A);
@@ -7,14 +7,16 @@ class AppColors {
   static const Color textColor = Color(0xFF333333);
   static const Color backgroundColor = Color(0xFFF7F8F9);
   static const Color backgroundColors = Color(0xFF8DB2CF);
+  static final Color? backgroundColorBlue = Colors.blue[100];
   static const Color whiteColor = Color(0xFFF1F2F4);
   static const Color messageColor = Color(0xFFfdbb2d);
+  // static const Color buttonBackgroundLight =Color.fromRGBO(50, 96, 122, 0.8784313725490196);
   static LinearGradient buttonBackgroundLight = const LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    stops: [0.0, 0.35, 1.0],
+    stops: [1.0, 0.35, 1.0],
     colors: [
-      Color.fromRGBO(2, 0, 36, 0.8784313725490196),
+      Color.fromRGBO(50, 96, 122, 0.8784313725490196),
       Color.fromRGBO(17, 53, 77, 0.8784313725490196),
       Color.fromRGBO(50, 96, 122, 0.8784313725490196),
     ],

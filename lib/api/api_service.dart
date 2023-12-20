@@ -1,13 +1,16 @@
 // ignore_for_file: depend_on_referenced_packages
 import 'dart:convert';
+import 'package:alston/model/ConfirmPassword_model.dart';
 import 'package:alston/model/EndShift/endShiftQuestion_model.dart';
 import 'package:alston/model/EndShift/endShiftSubmitQuestion_model.dart';
 import 'package:alston/model/EndShift/endShiftstep1_model.dart';
+import 'package:alston/model/EndShift/viewEosQuestion_model.dart';
 import 'package:alston/model/Prestart%20Activity/AskQuestion_model.dart';
 import 'package:alston/model/Prestart%20Activity/pre_start_checklist1.dart';
 import 'package:alston/model/Prestart%20Activity/pre_start_checklist2.dart';
 import 'package:alston/model/Prestart%20Activity/question_model.dart';
 import 'package:alston/model/Prestart%20Activity/uploadphoto_model.dart';
+import 'package:alston/model/config_model.dart';
 import 'package:alston/model/dropofBooking.dart';
 import 'package:alston/model/my-Booking/acknowledge-booking_model.dart';
 import 'package:alston/model/my-Booking/completed_booking_model.dart';
@@ -17,6 +20,7 @@ import 'package:alston/model/onTheWayBooking_model.dart';
 import 'package:alston/model/pickupBooking_model.dart';
 import 'package:alston/model/resumeWork_model.dart';
 import 'package:alston/model/take_a_rest_model.dart';
+import 'package:alston/model/viewPreStartQuestion_model.dart';
 import 'package:alston/model/waitingBooking_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
@@ -32,6 +36,7 @@ import '../model/Login/login_response_model.dart';
 // *******************  Login **********************//
 
 class ApiService extends GetxService {
+
 
   final String _baseUrl = 'https://cloudfront.safelineworld.com/api';
 
@@ -545,5 +550,75 @@ Future<ShiftDetails?> shiftCompletedDetails(String apiToken, int? driverId,Strin
   }
 
 
+Future<ConfirmPassword?> checkPassword(String? apiToken,int? driverId ,String? password) async {
+    var url = Uri.parse('$_baseUrl/password-check');
+    try {
+      var response = await http.post(url, body: {
+        
+        'api_token': apiToken,
+        'driver_id': driverId.toString(),
+        'password': password,
+       
 
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return ConfirmPassword.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Exception caught: $e');
+      return null;
+    }
+  }
+
+  
+Future<ViewPreStartQuestion?> viewPresStartQuestion(dynamic apiToken,dynamic preStartId) async {
+    var url = Uri.parse('$_baseUrl/view-prestart-questions');
+    // try {
+      var response = await http.post(url, body: {
+        
+        'api_token': apiToken,
+        'prestart_id': preStartId.toString(),
+       
+
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return ViewPreStartQuestion.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    // } catch (e) {
+    //   debugPrint('Exception caught: $e');
+    //   return null;
+    // }
+  }
+
+  
+Future<ViewEndShiftQuestion?> viewEndShiftQuestion(dynamic apiToken,dynamic eosId) async {
+    var url = Uri.parse('$_baseUrl/view-eos-questions');
+    // try {
+      var response = await http.post(url, body: {
+        
+        'api_token': apiToken,
+        'eos_id': eosId.toString(),
+       
+
+      });
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        return ViewEndShiftQuestion.fromJson(jsonResponse);
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null;
+      }
+    // } catch (e) {
+    //   debugPrint('Exception caught: $e');
+    //   return null;
+    // }
+  }
 }

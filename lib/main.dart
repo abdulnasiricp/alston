@@ -6,6 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 void main() {
+  //  final channel = IOWebSocketChannel.connect('ws://cloudfront.safelineworld.com:6001/app/safeline');
+
+  // channel.stream.listen((message) {
+  //   channel.sink.add('received!');
+  //   print('connected');
+  // });
+
   runApp(const MyApp());
 }
 

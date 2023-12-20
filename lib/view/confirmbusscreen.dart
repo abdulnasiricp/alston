@@ -18,7 +18,13 @@ class ConfirmBusScreen extends StatefulWidget {
   final String? apiToken;
   final int? driverId;
 
-  const ConfirmBusScreen({Key? key, required this.busNumbers, this.driverName, this.apiToken, this.driverId}) : super(key: key);
+  const ConfirmBusScreen(
+      {Key? key,
+      required this.busNumbers,
+      this.driverName,
+      this.apiToken,
+      this.driverId})
+      : super(key: key);
 
   @override
   State<ConfirmBusScreen> createState() => _ConfirmBusScreenState();
@@ -27,11 +33,9 @@ class ConfirmBusScreen extends StatefulWidget {
 class _ConfirmBusScreenState extends State<ConfirmBusScreen> {
   String? selectedBusNumber;
 
-   Future<void> _saveBusData() async {
+  Future<void> _saveBusData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString("BusNumber","$selectedBusNumber");
-   
-  
+    await prefs.setString("BusNumber", "$selectedBusNumber");
   }
 
   @override
@@ -65,7 +69,7 @@ class _ConfirmBusScreenState extends State<ConfirmBusScreen> {
             padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
             color: themeController.isDarkMode.value
                 ? AppColors.backgroundColorDarker
-                : AppColors.backgroundColor,
+                : AppColors.backgroundColorBlue,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -99,23 +103,18 @@ class _ConfirmBusScreenState extends State<ConfirmBusScreen> {
                       SizedBox(width: screenWidth * 0.1),
                       DropdownButton<String>(
                         value: selectedBusNumber,
-                        hint: const Text('Select Bus Number'),
+                        hint: const Text('Select Bus Number',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                         items: widget.busNumbers.map((String number) {
                           return DropdownMenuItem<String>(
                             value: number,
-                            child: Text(number),
+                            child: Text(number,style: const TextStyle(fontSize: 20),),
                           );
                         }).toList(),
                         onChanged: (String? newValue) {
-                          
-                         setState(() { 
-                          selectedBusNumber = newValue;
-
-                          
-                         });
-
+                          setState(() {
+                            selectedBusNumber = newValue;
+                          });
                         },
-                        
                       ),
                     ],
                   ),
@@ -127,9 +126,17 @@ class _ConfirmBusScreenState extends State<ConfirmBusScreen> {
                       ? AppColors.primaryColorDarker
                       : AppColors.primaryColor,
                   textColor: AppColors.whiteColor,
-                  onPressed: () {
+                  onPressed: () async {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setString('BusNumber', "$selectedBusNumber");
                     _saveBusData();
-                    Get.offAll( HomePage(busNumber: selectedBusNumber,driverName: widget.driverName,apiToken: widget.apiToken,driverId: widget.driverId,));
+                    Get.offAll(()=>HomePage(
+                      busNumber: selectedBusNumber,
+                      driverName: widget.driverName,
+                      apiToken: widget.apiToken,
+                      driverId: widget.driverId,
+                    ));
                   },
                 ),
                 SizedBox(height: buttonSpacing),

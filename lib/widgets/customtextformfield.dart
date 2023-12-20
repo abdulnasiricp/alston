@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final String labelText;
+ final bool isRead;
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final bool obscureText;
@@ -17,7 +18,7 @@ class CustomTextFormField extends StatelessWidget {
     required this.labelText,
     required this.controller,
     this.validator,
-    required this.obscureText,
+    required this.obscureText, required this.isRead,
   });
   @override
   Widget build(BuildContext context) {
@@ -28,22 +29,27 @@ class CustomTextFormField extends StatelessWidget {
     return SizedBox(
       height: 60.0, // Set your desired height
       child: TextFormField(
-        
+        readOnly: isRead,
         cursorColor: AppColors.primaryColorDark,
         keyboardType: TextInputType.emailAddress,
         obscureText: obscureText,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
+
           contentPadding: const EdgeInsets.symmetric(
-            vertical: 15.0, // Adjust the vertical padding
+            vertical: 20.0, // Adjust the vertical padding
             horizontal: 20.0, // Adjust the horizontal padding
+
           ),
           filled: true,
-          hintMaxLines: 1,
-          labelText: labelText,
+          // labelText: labelText,
+          hintText: labelText,
           hintStyle: const TextStyle(
-            fontSize: 12.0, // Set your desired font size for the placeholder
-            color: Colors.grey, // Set your desired color for the placeholder
+            fontSize: 15.0, // Set your desired font size for the placeholder
+            color: Colors.black, 
+
+            
+            
           ),
           errorStyle: const TextStyle(
             color: Colors.deepOrange,

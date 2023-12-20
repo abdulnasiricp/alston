@@ -195,131 +195,182 @@ class _TodayShiftState extends State<TodayShift> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     if (response != null && response!.success == 1) {
       List<CompletedData> bookingDetails = response!.data;
+      final ThemeController themeController = Get.find<ThemeController>();
 
-      return bookingDetails.isEmpty ? const Center(child: Text('No data are availible'),): ListView.builder(
-        itemCount: bookingDetails.length,
-        itemBuilder: (context, index) {
-          CompletedData bookingDetail = bookingDetails[index];
-          return Padding(
-            padding: const EdgeInsets.only(left: 10.0, right: 10),
-            child: Card(
-              color: Colors.deepPurple[50],
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(
-                        left: 5.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      return bookingDetails.isEmpty
+          ? const Center(
+              child: Text('No reports available'),
+            )
+          : ListView.builder(
+              itemCount: bookingDetails.length,
+              itemBuilder: (context, index) {
+                CompletedData bookingDetail = bookingDetails[index];
+                return Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10),
+                  child: Card(
+                    // color: AppColors.primaryColor,
+                    color: themeController.isDarkMode.value
+                    ? AppColors.backgroundColors
+                    : AppColors.primaryColor, 
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Start Time:'),
-                          Text('Pax:'),
-                          Text('PickUp Location:'),
-                          Text('Date/Time:'),
-                          Text('hours:'),
-                          Text('Destination:'),
-                          Text('Customer:'),
-                          Text('End Time:'),
-                          Text('Vehicle #:'),
+                          const Padding(
+                            padding: EdgeInsets.only(
+                              left: 5.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Start Time:',
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                                Text('Pax:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('PickUp Location:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Date/Time:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('hours:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Destination:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Customer:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('End Time:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Vehicle #:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 1.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text('${bookingDetail.startTime}',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                      )),
+                                ),
+
+                                Text(
+                                  '${bookingDetail.pax}',
+                                  style: const TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.pickupLocation}',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.dateTime}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                Text(
+                                  '${bookingDetail.hours}',
+                                  style: const TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.destination}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.customer}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.endTime}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.vehicleNumber}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 5.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${bookingDetail.startTime}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.pax}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.pickupLocation}',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.dateTime}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.hours}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.destination}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.customer}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.endTime}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.vehicleNumber}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      );
+                  ),
+                );
+              },
+            );
     } else {
       // Return a message or widget if there is no data or if there was an error
       return const Center(
@@ -383,131 +434,183 @@ class _WeekShiftState extends State<WeekShift> {
 
   @override
   Widget build(BuildContext context) {
+      final ThemeController themeController = Get.find<ThemeController>();
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     if (response != null && response!.success == 1) {
       List<CompletedData> bookingDetails = response!.data;
 
-      return bookingDetails.isEmpty ? const Center(child: Text('No data are availible'),): ListView.builder(
-        itemCount: bookingDetails.length,
-        itemBuilder: (context, index) {
-          CompletedData bookingDetail = bookingDetails[index];
-          return Padding(
-            padding: const EdgeInsets.only(left: 10.0, right: 10),
-            child: Card(
-              color: Colors.deepPurple[50],
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(
-                        left: 5.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      return bookingDetails.isEmpty
+          ? const Center(
+              child: Text('No reports available'),
+            )
+          : ListView.builder(
+              itemCount: bookingDetails.length,
+              itemBuilder: (context, index) {
+                CompletedData bookingDetail = bookingDetails[index];
+                return Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10),
+                  child: Card(
+                    // color: AppColors.primaryColor,
+                    color: themeController.isDarkMode.value
+                    ? AppColors.backgroundColors
+                    : AppColors.primaryColor, 
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Start Time:'),
-                          Text('Pax:'),
-                          Text('PickUp Location:'),
-                          Text('Date/Time:'),
-                          Text('hours:'),
-                          Text('Destination:'),
-                          Text('Customer:'),
-                          Text('End Time:'),
-                          Text('Vehicle #:'),
+                          const Padding(
+                            padding: EdgeInsets.only(
+                              left: 5.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Start Time:',
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                                Text('Pax:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('PickUp Location:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Date/Time:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('hours:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Destination:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Customer:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('End Time:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Vehicle #:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 1.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text('${bookingDetail.startTime}',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                      )),
+                                ),
+          
+                                Text(
+                                  '${bookingDetail.pax}',
+                                  style: const TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+          
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.pickupLocation}',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.dateTime}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                Text(
+                                  '${bookingDetail.hours}',
+                                  style: const TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.destination}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.customer}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.endTime}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.vehicleNumber}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 5.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${bookingDetail.startTime}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.pax}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.pickupLocation}',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.dateTime}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.hours}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.destination}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.customer}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.endTime}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.vehicleNumber}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      );
+                  ),
+                );
+              },
+            );
     } else {
       // Return a message or widget if there is no data or if there was an error
       return const Center(
@@ -571,131 +674,182 @@ class _MonthShiftState extends State<MonthShift> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     if (response != null && response!.success == 1) {
       List<CompletedData> bookingDetails = response!.data;
+      final ThemeController themeController = Get.find<ThemeController>();
 
-      return bookingDetails.isEmpty ? const Center(child: Text('No data are availible'),): ListView.builder(
-        itemCount: bookingDetails.length,
-        itemBuilder: (context, index) {
-          CompletedData bookingDetail = bookingDetails[index];
-          return Padding(
-            padding: const EdgeInsets.only(left: 10.0, right: 10),
-            child: Card(
-              color: Colors.deepPurple[50],
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(
-                        left: 5.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      return bookingDetails.isEmpty
+          ? const Center(
+              child: Text('No reports available'),
+            )
+          : ListView.builder(
+              itemCount: bookingDetails.length,
+              itemBuilder: (context, index) {
+                CompletedData bookingDetail = bookingDetails[index];
+                return Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10),
+                  child: Card(
+                    // color: AppColors.primaryColor,
+                    color: themeController.isDarkMode.value
+                    ? AppColors.backgroundColors
+                    : AppColors.primaryColor, 
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Start Time:'),
-                          Text('Pax:'),
-                          Text('PickUp Location:'),
-                          Text('Date/Time:'),
-                          Text('hours:'),
-                          Text('Destination:'),
-                          Text('Customer:'),
-                          Text('End Time:'),
-                          Text('Vehicle #:'),
+                          const Padding(
+                            padding: EdgeInsets.only(
+                              left: 5.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Start Time:',
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                                Text('Pax:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('PickUp Location:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Date/Time:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('hours:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Destination:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Customer:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('End Time:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                                Text('Vehicle #:',
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white)),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 1.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text('${bookingDetail.startTime}',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                      )),
+                                ),
+
+                                Text(
+                                  '${bookingDetail.pax}',
+                                  style: const TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.pickupLocation}',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.dateTime}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                Text(
+                                  '${bookingDetail.hours}',
+                                  style: const TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.destination}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.customer}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.endTime}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                                // const SizedBox(
+                                //   height: 5,
+                                // ),
+                                SizedBox(
+                                  width: screenWidth * 0.430,
+                                  child: Text(
+                                    '${bookingDetail.vehicleNumber}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 5.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${bookingDetail.startTime}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.pax}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.pickupLocation}',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.dateTime}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.hours}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.destination}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.customer}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.endTime}',
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            '${bookingDetail.vehicleNumber}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      );
+                  ),
+                );
+              },
+            );
     } else {
       // Return a message or widget if there is no data or if there was an error
       return const Center(

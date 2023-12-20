@@ -33,28 +33,28 @@ class ShiftDetails {
 }
 
 class CompletedData {
-    int bookingId;
-    int bookingNumber;
-    String vehicleNumber;
-    String customer;
+    dynamic bookingId;
+    dynamic bookingNumber;
+    dynamic vehicleNumber;
+    dynamic customer;
     DateTime dateTime;
     DateTime date;
-    String time;
-    String pickupLocation;
-    String destination;
-    String reason;
-    int pax;
-    String tripStatus;
-    String driverStatus;
-    String? paxName;
-    String? noteToDriver;
-    String personIncharge;
-    String mobileNo;
-    String? comments;
-    String? noteByDriver;
+    dynamic time;
+    dynamic pickupLocation;
+    dynamic destination;
+    dynamic reason;
+    dynamic pax;
+    dynamic tripStatus;
+    dynamic driverStatus;
+    dynamic paxName;
+    dynamic noteToDriver;
+    dynamic personIncharge;
+    dynamic mobileNo;
+    dynamic comments;
+    dynamic noteByDriver;
     DateTime startTime;
     DateTime endTime;
-    String hours;
+    dynamic hours;
 
     CompletedData({
         required this.bookingId,

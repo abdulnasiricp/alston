@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages, unused_local_variable, avoid_unnecessary_containers, non_constant_identifier_names, avoid_print, unnecessary_brace_in_string_interps, unnecessary_string_interpolations
+// ignore_for_file: library_private_types_in_public_api, depend_on_referenced_packages, unused_local_variable, avoid_unnecessary_containers, non_constant_identifier_names, avoid_print, unnecessary_brace_in_string_interps, unnecessary_string_interpolations, unused_field
 
 import 'dart:async';
 import 'dart:convert';
@@ -7,6 +7,7 @@ import 'package:alston/model/resumeWork_model.dart';
 import 'package:alston/model/take_a_rest_model.dart';
 import 'package:alston/view/homepage.dart';
 import 'package:alston/view/location_model.dart';
+import 'package:alston/view/mybooking.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +15,6 @@ import '../utils/appcolors.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/theme_controller.dart';
 import '../widgets/customelevatedbutton.dart';
-import '../widgets/customtextformfield.dart';
 import '../widgets/navigationdrawer.dart';
 import 'package:http/http.dart' as http;
 
@@ -44,20 +44,22 @@ class _TakeARestScreenState extends State<TakeARestScreen> {
   void _toggleTimer() {
     if (_isRunning) {
       setState(() {
-        _buttonText = 'Resume';
+        _buttonText = 'Resume Operation';
         _isRunning = false;
         _timer?.cancel();
-_driverResume(apiToken,response?.data.restId);
- 
+        _driverResume(apiToken, response?.data.restId);
+                Get.to(() => const MyBooking());
 
+     
       });
     } else {
       setState(() {
-        _buttonText = 'Stop Resting';
+        _buttonText = 'Stop Operation';
         _isRunning = true;
-       
+        _driverTakeRest(
+            apiToken, driverId, vehicleId, odometer, address, lat, long);
+          
 
-            _driverTakeRest(apiToken, driverId, vehicleId, "${_odometer.text}", "${_locationName}", lat, long);
        
 
         _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
@@ -95,17 +97,21 @@ _driverResume(apiToken,response?.data.restId);
     vehicleId = sp.getInt('vehicleId') ?? 1;
     apiToken = sp.getString('apiToken') ?? "";
     BusNumber = sp.getString('busNumber') ?? "";
-    print(driverId);
-    print(vehicleId);
-    print(apiToken);
+
     setState(() {});
+  }
+  getData()async{
     await fetchVehiclePosition();
+    await LoadData();
+
+    
   }
 
   @override
   void initState() {
     super.initState();
-    LoadData();
+    getData();
+    
   }
 
   final ApiService apiService = Get.put(ApiService());
@@ -145,44 +151,48 @@ _driverResume(apiToken,response?.data.restId);
     } else {}
   }
 
+  late String long = '';
+  late String lat = '';
+  late String odometer = '';
+  late String address = '';
+  late String stringValue = long;
+  late double doubleValueLong = double.parse(stringValue);
+  late String stringValuelat = lat;
+  late double doubleValueLat = double.parse(stringValuelat);
 
-late String long;
-late String lat;
-late String stringValue = long;
-late double doubleValueLong = double.parse(stringValue);
-late String stringValuelat = lat;
-late double doubleValueLat = double.parse(stringValuelat);
-  
-Future<void> fetchVehiclePosition() async {
-  const apiUrl = "https://service.takip724.com/?type=rest&token=17713E4D-F452-47D8-9879-54F336ED8292&serviceType=VehicleLastPosition&plate=BS03%20BU";
+  Future<void> fetchVehiclePosition() async {
+    const apiUrl =
+        "https://service.takip724.com/?type=rest&token=17713E4D-F452-47D8-9879-54F336ED8292&serviceType=VehicleLastPosition&plate=BS03%20BU";
 
-  // try {
-    final response = await http.post(Uri.parse(apiUrl));
+    try {
+      final response = await http.post(Uri.parse(apiUrl));
 
-    if (response.statusCode == 200) {
-      // Parse the response JSON
-      final responseData = json.decode(response.body);
-      
-      // Map the JSON to your model
-      final vehiclePosition = LocationDetials.fromJson(responseData[0]);
+      if (response.statusCode == 200) {
+        // Parse the response JSON
+        final responseData = json.decode(response.body);
 
-      // Now you can use the data as needed
-      print(vehiclePosition.longitude);
-      print(vehiclePosition.latitude);
+        // Map the JSON to your model
+        final vehiclePosition = LocationDetials.fromJson(responseData[0]);
+
+        // Now you can use the data as needed
+        print(vehiclePosition.longitude);
+        print(vehiclePosition.latitude);
         // Update the state with the address
         setState(() {
           long = vehiclePosition.longitude;
           lat = vehiclePosition.latitude;
+          odometer = vehiclePosition.odometer;
+          address = vehiclePosition.address;
         });
-    } else {
-      // Handle errors
-      print("Failed to fetch data. Status code: ${response.statusCode}");
+      } else {
+        // Handle errors
+        print("Failed to fetch data. Status code: ${response.statusCode}");
+      }
+    } catch (error) {
+      // Handle exceptions
+      print("Error: $error");
     }
-  // } catch (error) {
-  //   // Handle exceptions
-  //   print("Error: $error");
-  // }
-}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -233,54 +243,112 @@ Future<void> fetchVehiclePosition() async {
                   : AppColors.textColorDarker;
 
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(
                     height: mediaQuery.size.height * 0.1,
                   ),
-                  Text(
-                    'You Are Operating Bus $BusNumber',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: mediaQuery.size.width * 0.05,
-                      color: themeController.isDarkMode.value
-                          ? AppColors.backgroundColor
-                          : AppColors
-                              .backgroundColorDarker, // Set the dynamic color
-                    ).merge(GoogleFonts.josefinSans()),
-                    textAlign: TextAlign.center,
+                  Center(
+                    child: Text(
+                      'You Are Operating Bus $BusNumber',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: mediaQuery.size.width * 0.05,
+                        color: themeController.isDarkMode.value
+                            ? AppColors.backgroundColor
+                            : AppColors
+                                .backgroundColorDarker, // Set the dynamic color
+                      ).merge(GoogleFonts.josefinSans()),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                   SizedBox(height: mediaQuery.size.height * 0.05),
-                  CustomTextFormField(
-                    labelText: 'Enter Odometer Reading, Km like 34',
-                    obscureText: false,
-                    controller: _odometer,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Odometer reading cannot be empty";
-                      }
-                      return null;
-                    },
+                  // CustomTextFormField(
+                  //   isRead: true,
+                  //   labelText: '$odometer',
+                  //   obscureText: false,
+                  //   controller: _odometer,
+                  //   validator: (value) {
+                  //     if (value!.isEmpty) {
+                  //       return "Odometer reading cannot be empty";
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
+                  // SizedBox(height: mediaQuery.size.height * 0.02),
+                  // CustomTextFormField(
+                  //   isRead: true,
+                  //   labelText: '$address',
+                  //   obscureText: false,
+                  //   controller: _locationName,
+                  //   validator: (value) {
+                  //     if (value!.isEmpty) {
+                  //       return "Location cannot be empty";
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      '    Location:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  SizedBox(height: mediaQuery.size.height * 0.02),
-                  CustomTextFormField(
-                    labelText: 'Enter Resting Location like sedney etc',
-                    obscureText: false,
-                    controller: _locationName,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Location cannot be empty";
-                      }
-                      return null;
-                    },
+
+                  Container(
+                    height: 60,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all()),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                          child: Text(
+                        '$address',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black),
+                      )),
+                    ),
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      '    Milage:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+
+                  Container(
+                    height: 60,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all()),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                          child: Text(
+                        '$odometer',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black),
+                      )),
+                    ),
                   ),
                   SizedBox(height: mediaQuery.size.height * 0.05),
-                  Text(
-                    _formatTime(_elapsedSeconds),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: mediaQuery.size.width *
-                          0.1, // Assuming you have a digital font
-                    ).merge(GoogleFonts.josefinSans()),
+                  Center(
+                    child: Text(
+                      _formatTime(_elapsedSeconds),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: mediaQuery.size.width *
+                            0.1, // Assuming you have a digital font
+                      ).merge(GoogleFonts.josefinSans()),
+                    ),
                   ),
                   SizedBox(height: mediaQuery.size.height * 0.05),
                   CustomElevatedButton(
@@ -292,9 +360,9 @@ Future<void> fetchVehiclePosition() async {
                         ? AppColors.whiteColor
                         : AppColors.whiteColor,
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _toggleTimer();
-                      }
+                      // if (_formKey.currentState!.validate()) {
+                      _toggleTimer();
+                      // }
                     },
                   ),
                   SizedBox(height: mediaQuery.size.height * 0.05),
